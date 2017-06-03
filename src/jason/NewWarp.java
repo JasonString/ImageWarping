@@ -43,11 +43,12 @@ public class NewWarp {
 	 * Create the application.
 	 */
 	public NewWarp() {
-		long timeS, timeE;
+		long timeS, timeE, totalT;
 		timeS = System.currentTimeMillis();
 		initialize();
 		timeE = System.currentTimeMillis();
-		System.out.println((timeE-timeS));
+		totalT = timeE-timeS;
+		System.out.println(totalT);
 	}
 
 	/**
@@ -77,7 +78,7 @@ public class NewWarp {
 				{84,256}
 		};
 		double[][] shifts= {
-			 	{-30,-10},
+				{-30,-10},
 				{50,3},
 				{2,35},
 				{-35,40}
@@ -247,13 +248,19 @@ public class NewWarp {
 			lineDists[i][3] = yE+(int)Math.round(shift[1]);
 			
 		}
-		//計算每一點的來源
-		
+		//計算網格點的來源
+		int meshSize = 5;
 		dists = new double[points.length];
 		effects = new double[points.length];
 		newEffects = new double[points.length];
-		for(int x=1; x<=cols1; x++){
-			for(int y=1; y<=rows1; y++){
+		int[][] flag = new int[cols1][rows1];
+		int[][] keyXs = new int[cols1][rows1];/////////////////之後可以改在同一個陣列
+		int[][] keyYs = new int[cols1][rows1];
+		double[][] keyXs2 = new double[cols1][rows1];
+		double[][] keyYs2 = new double[cols1][rows1];
+		for(int x=0; x<cols1; x=x+meshSize){
+			for(int y=0; y<rows1; y=y+meshSize){
+				flag[x][y] =1;
 				//System.out.println(x+","+y);
 				OnLines pts = new OnLines(lineDists,x,y);
 				
@@ -269,6 +276,10 @@ public class NewWarp {
 					int dyE = lineDists[pts.lineNum()][3];
 					DistLinePt linePt = new DistLinePt(dxS, dyS, dxE, dyE, x, y, xS, yS, xE, yE);
 					dst.put(y, x, source.get( (int)Math.round(linePt.getY()), (int)Math.round(linePt.getX()) ) );
+					keyXs[x][y]=(int)Math.round(linePt.getX());
+					keyYs[x][y]=(int)Math.round(linePt.getY());
+					keyXs2[x][y] = linePt.getX();
+					keyYs2[x][y] = linePt.getY();
 				}
 				else{
 					WithInLineReg inLineReg = new WithInLineReg(lineDists, x, y);
@@ -310,7 +321,7 @@ public class NewWarp {
 						newPoints = shiftPoints;
 						newSifts = invShifts;
 					}
-					//
+					//開始計算mesh的來源點
 					int [][] newPoints2;
 					double [][] newSifts2;
 					newPoints2 = newPoints;
@@ -343,6 +354,9 @@ public class NewWarp {
 						double sum = 0; //權重加總
 						for(int k=0; k<effects.length; k++){
 							sum = sum+effects[k];
+						}
+						if(x==585 && y==1){
+							System.out.println("0,"+ sum);
 						}
 						double power = 1;
 						while(Math.abs(sum-1)>0.1){
@@ -385,16 +399,54 @@ public class NewWarp {
 					else{
 						shift = newSifts2[matchPoint];
 					}
-					
-					if(y+(int)shift[1]>=0 && x+(int)shift[0] >=0 && y+(int)shift[1]<rows1 && x+(int)shift[0] <cols1){
-						dst.put(y, x, source.get( y+(int)shift[1] , x+(int)shift[0] ) );
+					keyXs[x][y]=x+(int)Math.round(shift[0]);
+					keyYs[x][y]=y+(int)Math.round(shift[1]);  //////////////////4捨5入 會比較好?
+					keyXs2[x][y] = x+shift[0];
+					keyYs2[x][y] = y+shift[1];
+					//System.out.println(x+","+y+","+keyXs[x][y]+","+keyYs[x][y]);
+					if(keyYs[x][y]>=0 && keyXs[x][y] >=0 && keyXs[x][y]<cols1 && keyYs[x][y] <rows1){
+						dst.put(y, x, source.get( keyYs[x][y] , keyXs[x][y] ) );
+						//System.out.println(x+","+y+","+keyXs[x][y]+","+keyYs[x][y]);
 					}
 					
 				}
 				
 			}
 		}
-			
+		
+		//處理未填滿的點
+		//for(int m=1; m<meshSize; m++ ){
+			for(int x=0; x<cols1; x++){
+				for(int y=0; y<rows1; y++){
+					if(flag[x][y] !=1){
+						MeshPt center = new MeshPt(x, y, meshSize, keyXs2, keyYs2);
+						
+						if(center.isOut==1){
+							continue;
+						}
+						int xx = center.xx;
+						int yy = center.yy;
+												
+					/*	if(x > 30 && x <36 && y>70 && y<76){
+							System.out.println(x+","+y+","+a1+","+b1+","+a2+","+b2+","+a3+","+b3+","+a4+","+b4);
+						}*/
+						if(xx>0 && yy >0 && xx<cols1 && yy<rows1){
+							dst.put(y, x, source.get( yy , xx ) );
+						}
+					}
+				}
+			}
+		//}
+		for(int p=0;p<pointsCnt;p++){
+			for(int x=0;x<source.cols();x++){
+				for(int y=0;y<source.rows();y++){
+					if(x > points[p][0]-3 && x < points[p][0]+3 && y> points[p][1]-3 && y<points[p][1]+3){
+						double[] temp= {200,200,200};
+						source.put(y, x, temp);
+					}
+				}
+			}
+		}
 		BufferedImage image = matToBufferedImage(source);
 		BufferedImage image2 = matToBufferedImage(dst);
 		
@@ -417,19 +469,19 @@ public class NewWarp {
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
 		
-		JMenu mnNewMenu = new JMenu("File");
-		menuBar.add(mnNewMenu);
+		JMenu menu = new JMenu("\u6A94\u6848");
+		menuBar.add(menu);
 		
-		JMenuItem mntmSave = new JMenuItem("Save");
+		JMenuItem mntmSave = new JMenuItem("save");
 		mntmSave.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				MatOfInt JpgCompressionRate = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, 100);
 				Imgcodecs.imwrite("src//jason//xmanWarp.jpg", dst, JpgCompressionRate);
-				System.out.println("save successfully");
+				System.out.println("Save Successfully");
 			}
 		});
-		mnNewMenu.add(mntmSave);
+		menu.add(mntmSave);
 	}
 	//copy
 	public BufferedImage matToBufferedImage(Mat matrix) {
