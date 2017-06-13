@@ -2,8 +2,10 @@ package jason;
 
 import java.awt.EventQueue;
 import java.awt.image.BufferedImage;
+import java.nio.file.Path;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
@@ -17,12 +19,19 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JTextField;
+import javax.swing.JButton;
 
 public class NewWarp {
 	static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME);}
 	
 	private JFrame frame;
-
+	private BufferedImage image;
+	private BufferedImage image2;
+	private Mat dst;
+	private String imageUri;
+	private JTextField txtMeshSize;
+	private int meshSize;
 	/**
 	 * Launch the application.
 	 */
@@ -44,9 +53,15 @@ public class NewWarp {
 	 */
 	public NewWarp() {
 		long timeS, timeE, totalT;
+	
 		timeS = System.currentTimeMillis();
-		initialize();
+		imageUri = "src//jason//xman.jpg";
+		meshSize = 5;
+		process();
 		timeE = System.currentTimeMillis();
+		
+		initialize();
+		
 		totalT = timeE-timeS;
 		System.out.println(totalT);
 	}
@@ -55,18 +70,92 @@ public class NewWarp {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		Mat source = Imgcodecs.imread("src//jason//xman.jpg");
-		Mat dst = new Mat(source.rows(),source.cols(),source.type());
+		
+		frame = new JFrame();
+		frame.setBounds(100, 100, 150+image.getWidth()+image2.getWidth(), 150+image2.getHeight());
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("");
+		lblNewLabel.setBounds(50, 60, image.getWidth(), image.getHeight());
+		//ImageIcon icon = new ImageIcon(image);
+		//icon.getImage().flush();
+		lblNewLabel.setIcon( new ImageIcon(image));
+		frame.getContentPane().add(lblNewLabel);
+		
+		JLabel lblNewLabel_1 = new JLabel("");
+		lblNewLabel_1.setBounds(image.getWidth()+100, 60, image2.getWidth(), image2.getHeight());
+		lblNewLabel_1.setIcon(new ImageIcon(image2));
+		frame.getContentPane().add(lblNewLabel_1);
+		
+		txtMeshSize = new JTextField();
+		txtMeshSize.setBounds(50, 20, 50, 20);
+		frame.getContentPane().add(txtMeshSize);
+		txtMeshSize.setColumns(10);
+		//run
+		JButton btnRun = new JButton("Run");
+		btnRun.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				meshSize = Integer.valueOf(txtMeshSize.getText());
+				process();
+				lblNewLabel.setIcon( new ImageIcon(image));
+				lblNewLabel_1.setIcon(new ImageIcon(image2));
+			}
+		});
+		btnRun.setBounds(120, 20, 60, 20);
+		frame.getContentPane().add(btnRun);
+		
+		JMenuBar menuBar = new JMenuBar();
+		frame.setJMenuBar(menuBar);
+		
+		JMenu menu = new JMenu("\u6A94\u6848");
+		menuBar.add(menu);
+		
+		JMenuItem mntmSave = new JMenuItem("save");
+		mntmSave.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				MatOfInt JpgCompressionRate = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, 100);
+				Imgcodecs.imwrite("src//jason//xmanWarp.jpg", dst, JpgCompressionRate);
+				System.out.println("Save Successfully");
+			}
+		});
+		//讀檔
+		JMenuItem mntmOpenImage = new JMenuItem("open image");
+		JFileChooser imageFileC = new JFileChooser();
+		
+		mntmOpenImage.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				//imageFileC.setFileFilter();篩選
+				imageFileC.setCurrentDirectory(new java.io.File("src/jason"));
+				if(imageFileC.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
+				 	Path imagePath = imageFileC.getSelectedFile().toPath();
+				 	imageUri = imagePath.toUri().toString().substring(8);
+				}
+				
+				process();
+				lblNewLabel.setIcon( new ImageIcon(image));
+				lblNewLabel_1.setIcon(new ImageIcon(image2));
+			}
+		});
+		menu.add(mntmOpenImage);
+		menu.add(mntmSave);
+	}
+	private void process(){
+		Mat source = Imgcodecs.imread(imageUri);
+		dst = new Mat(source.rows(),source.cols(),source.type());
 		Mat sourceG = new Mat(source.rows(),source.cols(),source.type());
 		Imgproc.cvtColor(source, sourceG, Imgproc.COLOR_RGB2GRAY);
 		
 		//dst變黑
-				for(int x=0;x<dst.cols();x++){
-					for(int y=0;y<dst.rows();y++){
-						double[] temp= {1,1,1};
-						dst.put(y, x, temp);
-					}
-				}
+		for(int x=0;x<dst.cols();x++){
+			for(int y=0;y<dst.rows();y++){
+				double[] temp= {1,1,1};
+				dst.put(y, x, temp);
+			}
+		}
 				
 		int rows1 = sourceG.rows();
 		int cols1 = sourceG.cols();
@@ -249,7 +338,7 @@ public class NewWarp {
 			
 		}
 		//計算網格點的來源
-		int meshSize = 5;
+		
 		dists = new double[points.length];
 		effects = new double[points.length];
 		newEffects = new double[points.length];
@@ -447,41 +536,10 @@ public class NewWarp {
 				}
 			}
 		}
-		BufferedImage image = matToBufferedImage(source);
-		BufferedImage image2 = matToBufferedImage(dst);
+		image = matToBufferedImage(source);
+		image2 = matToBufferedImage(dst);
 		
 		
-		frame = new JFrame();
-		frame.setBounds(100, 100, 150+image.getWidth()+image2.getWidth(), 150+image2.getHeight());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
-		
-		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setBounds(50, 50, image.getWidth(), image.getHeight());
-		lblNewLabel.setIcon(new ImageIcon(image));
-		frame.getContentPane().add(lblNewLabel);
-		
-		JLabel lblNewLabel_1 = new JLabel("");
-		lblNewLabel_1.setBounds(image.getWidth()+100, 50, image2.getWidth(), image2.getHeight());
-		lblNewLabel_1.setIcon(new ImageIcon(image2));
-		frame.getContentPane().add(lblNewLabel_1);
-		
-		JMenuBar menuBar = new JMenuBar();
-		frame.setJMenuBar(menuBar);
-		
-		JMenu menu = new JMenu("\u6A94\u6848");
-		menuBar.add(menu);
-		
-		JMenuItem mntmSave = new JMenuItem("save");
-		mntmSave.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				MatOfInt JpgCompressionRate = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, 100);
-				Imgcodecs.imwrite("src//jason//xmanWarp.jpg", dst, JpgCompressionRate);
-				System.out.println("Save Successfully");
-			}
-		});
-		menu.add(mntmSave);
 	}
 	//copy
 	public BufferedImage matToBufferedImage(Mat matrix) {
