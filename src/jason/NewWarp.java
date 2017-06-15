@@ -1,6 +1,7 @@
 package jason;
 
 import java.awt.EventQueue;
+import java.awt.List;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 
@@ -55,7 +56,7 @@ public class NewWarp {
 		long timeS, timeE, totalT;
 	
 		timeS = System.currentTimeMillis();
-		imageUri = "src//jason//xman.jpg";
+		imageUri = "src//jason//book.jpg";
 		meshSize = 5;
 		process();
 		timeE = System.currentTimeMillis();
@@ -77,6 +78,12 @@ public class NewWarp {
 		frame.getContentPane().setLayout(null);
 		
 		JLabel lblNewLabel = new JLabel("");
+		lblNewLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				System.out.println(arg0.getX()+","+arg0.getY());
+			}
+		});
 		lblNewLabel.setBounds(50, 60, image.getWidth(), image.getHeight());
 		//ImageIcon icon = new ImageIcon(image);
 		//icon.getImage().flush();
@@ -117,7 +124,7 @@ public class NewWarp {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				MatOfInt JpgCompressionRate = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, 100);
-				Imgcodecs.imwrite(imageUri.substring(0, imageUri.length()-4)+"Warp.jpg"+"["+meshSize+"]", dst, JpgCompressionRate);
+				Imgcodecs.imwrite(imageUri.substring(0, imageUri.length()-4)+"Warp"+"["+meshSize+"]"+".jpg", dst, JpgCompressionRate);
 				System.out.println("Save Successfully");
 			}
 		});
@@ -161,24 +168,22 @@ public class NewWarp {
 		int cols1 = sourceG.cols();
 
 		int[][] points= {
-				{208,88},
-				{333,97},
-				{491,274},
-				{84,256}
+				{378, 153},
+				{299, 286},
+				{83, 521},
+				
 		};
 		double[][] shifts= {
-				{-30,-10},
-				{50,3},
-				{2,35},
-				{-35,40}
+				{-20,-20},
+				{-30,-5},
+				{10,10},
+				
 		};
 		int[][] lines={
-				{68,145,213,245},
-				{54,168,203,256},
-				{39,194,197,269},
-				{329,275,489,177},
-				{338,291,507,208},
-				{344,307,515,241},
+				{486, 88, 786, 85},
+				{339, 214, 796, 213},
+				{77, 396, 800, 396},
+				{533, 285, 539, 531}
 				
 		};
 		
