@@ -2,8 +2,10 @@ package jason;
 
 import java.awt.EventQueue;
 import java.awt.image.BufferedImage;
+import java.nio.file.Path;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
@@ -22,7 +24,10 @@ public class NewWarp {
 	static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME);}
 	
 	private JFrame frame;
-
+	private BufferedImage image;
+	private BufferedImage image2;
+	private Mat dst;
+	private Path imagePath;
 	/**
 	 * Launch the application.
 	 */
@@ -45,17 +50,17 @@ public class NewWarp {
 	public NewWarp() {
 		long timeS, timeE;
 		timeS = System.currentTimeMillis();
-		initialize();
+		
+		process();
+		
 		timeE = System.currentTimeMillis();
+		
+		initialize(image, image2, dst);
 		System.out.println((timeE-timeS));
 	}
-
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void initialize() {
-		Mat source = Imgcodecs.imread("src//jason//xman.jpg");
-		Mat dst = new Mat(source.rows(),source.cols(),source.type());
+	private void process(){
+		Mat source = Imgcodecs.imread("src/jason/xman.jpg");
+		dst = new Mat(source.rows(),source.cols(),source.type());
 		Mat sourceG = new Mat(source.rows(),source.cols(),source.type());
 		Imgproc.cvtColor(source, sourceG, Imgproc.COLOR_RGB2GRAY);
 		
@@ -395,12 +400,17 @@ public class NewWarp {
 			}
 		}
 			
-		BufferedImage image = matToBufferedImage(source);
-		BufferedImage image2 = matToBufferedImage(dst);
+		image = matToBufferedImage(source);
+		image2 = matToBufferedImage(dst);
+	}
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize(BufferedImage image, BufferedImage image2, Mat dst) {
 		
 		
 		frame = new JFrame();
-		frame.setBounds(100, 100, 150+image.getWidth()+image2.getWidth(), 150+image2.getHeight());
+		frame.setBounds(0, 0, 150+image.getWidth()+image2.getWidth(), 150+image2.getHeight());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -429,6 +439,21 @@ public class NewWarp {
 				System.out.println("save successfully");
 			}
 		});
+		
+		JMenuItem mntmOpenImage = new JMenuItem("Open Image");
+		JFileChooser imageurl = new JFileChooser();
+		mntmOpenImage.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				imageurl.setCurrentDirectory(new java.io.File("src/jason"));
+				imageurl.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				if(imageurl.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
+					 imagePath = imageurl.getSelectedFile().toPath();
+					 System.out.println(imagePath.getParent().toString());
+				}
+			}
+		});
+		mnNewMenu.add(mntmOpenImage);
 		mnNewMenu.add(mntmSave);
 	}
 	//copy
