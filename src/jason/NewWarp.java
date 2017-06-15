@@ -117,7 +117,7 @@ public class NewWarp {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				MatOfInt JpgCompressionRate = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, 100);
-				Imgcodecs.imwrite("src//jason//xmanWarp.jpg", dst, JpgCompressionRate);
+				Imgcodecs.imwrite(imageUri.substring(0, imageUri.length()-4)+"Warp.jpg"+"["+meshSize+"]", dst, JpgCompressionRate);
 				System.out.println("Save Successfully");
 			}
 		});
