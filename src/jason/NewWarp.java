@@ -13,6 +13,8 @@ import javax.swing.JLabel;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import javax.swing.JMenuBar;
@@ -532,14 +534,21 @@ public class NewWarp {
 			}
 		//}
 		for(int p=0;p<pointsCnt;p++){
-			for(int x=0;x<source.cols();x++){
+			/*for(int x=0;x<source.cols();x++){
 				for(int y=0;y<source.rows();y++){
 					if(x > points[p][0]-3 && x < points[p][0]+3 && y> points[p][1]-3 && y<points[p][1]+3){
 						double[] temp= {200,200,200};
 						source.put(y, x, temp);
 					}
 				}
-			}
+			}*/
+			Point pt1= new Point(points[p][0],points[p][1]);
+			Imgproc.line(source, pt1, pt1, new Scalar(25,55,220),5);
+		}
+		for(int p=0;p<linesR;p++){
+			Point pt1= new Point(lines[p][0],lines[p][1]);
+			Point pt2= new Point(lines[p][2],lines[p][3]);
+			Imgproc.line(source, pt1, pt2, new Scalar(225,0,0),1);
 		}
 		image = matToBufferedImage(source);
 		image2 = matToBufferedImage(dst);
