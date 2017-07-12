@@ -5,13 +5,13 @@ import java.util.List;
 
 public class CalNewPts {
 	
-	List newPtSetX = new ArrayList();
-	List newPtSetY = new ArrayList();
+	List<Integer> newPtSetX = new ArrayList<Integer>();
+	List<Integer> newPtSetY = new ArrayList<Integer>();
 	
-	List newSiftsX = new ArrayList();
-	List newSiftsY = new ArrayList();
+	List<Integer> newSiftsX = new ArrayList<Integer>();
+	List<Integer> newSiftsY = new ArrayList<Integer>();
 	
-	public CalNewPts(int[] lineNumS, int[] lineSS, int[] lineES, int[][] lines, int[][] lineDists, int x, int y){
+	public CalNewPts(int[] lineNumS, int[] lineSS, int[] lineES, int[][] lines, ArrayList<int[]> lineDists, int x, int y){
 	
 		for(int i=0; i<lineNumS.length; i++){
 			int xS = lines[i][0];
@@ -19,10 +19,10 @@ public class CalNewPts {
 			int xE = lines[i][2];
 			int yE = lines[i][3];
 			
-			int dxS = lineDists[i][0];
-			int dyS = lineDists[i][1];
-			int dxE = lineDists[i][2];
-			int dyE = lineDists[i][3];
+			int dxS = lineDists.get(i)[0];
+			int dyS = lineDists.get(i)[1];
+			int dxE = lineDists.get(i)[2];
+			int dyE = lineDists.get(i)[3];
 			if(lineNumS[i] == 1){
 				
 				//System.out.println(x+","+y+","+xS+","+xE+","+yS+","+yE);

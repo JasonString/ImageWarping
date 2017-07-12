@@ -1,9 +1,13 @@
 package jason;
 
 import java.awt.EventQueue;
-import java.awt.List;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -153,7 +157,7 @@ public class NewWarp {
 		menu.add(mntmSave);
 	}
 	private void process(){
-		Mat source = Imgcodecs.imread(imageUri);
+		Mat source = Imgcodecs.imread(imageUri);//src//jason//book.jpg
 		dst = new Mat(source.rows(),source.cols(),source.type());
 		Mat sourceG = new Mat(source.rows(),source.cols(),source.type());
 		Imgproc.cvtColor(source, sourceG, Imgproc.COLOR_RGB2GRAY);
@@ -181,14 +185,33 @@ public class NewWarp {
 				{10,10},
 				
 		};
-		int[][] lines={
+		String line = "";
+        String cvsSplitBy = ",";
+        ArrayList<String[]> dataList = new ArrayList<String[]>();
+		try(BufferedReader br = new BufferedReader(new FileReader("src//jason//book.jpg"))) {
+			while ((line = br.readLine()) != null) {
+                dataList.add(line.split(cvsSplitBy));
+            }
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println(dataList.get(1)[0]);
+		int[][] lines0={
 				{486, 88, 786, 85},
 				{339, 214, 796, 213},
 				{77, 396, 800, 396},
 				{533, 285, 539, 531}
 				
 		};
-		
+		ArrayList<int[]> lines = new ArrayList<int[]>();
+		for(int i=0; i<lines0.length; i++){
+				lines.add(lines0[i]);
+		}
+		/*
+		for(int i=0; i<lines0.length; i++){
+			System.out.println(lines.get(i)[1]);
+		}
+		*/
 		int[][] shiftPoints = new int[points.length][2];
 		double[][] invShifts = new double[shifts.length][2];
 		for(int i=0; i<points.length; i++){
@@ -202,8 +225,8 @@ public class NewWarp {
 		//計算線的位移
 		int  pointsCnt = points.length;
 		double diagonal = Math.sqrt(rows1*rows1+cols1*cols1);
-		int linesR = lines.length;
-		int linesC = lines[0].length;
+		int linesR = lines.size();
+		int linesC = 4;
 		
 		double[] dists = new double[points.length];
 		double[] effects = new double[points.length];
@@ -211,10 +234,10 @@ public class NewWarp {
 		int[][] lineDists = new int[linesR][linesC];
 		
 		for(int i=0; i<linesR; i++){
-			int xS = lines[i][0];
-			int yS = lines[i][1];
-			int xE = lines[i][2];
-			int yE = lines[i][3];
+			int xS = lines.get(i)[0]; 
+			int yS = lines.get(i)[1];
+			int xE = lines.get(i)[2];
+			int yE = lines.get(i)[3];
 			
 			double[] shift ={0,0};
 			//計算點的影響力S
@@ -361,10 +384,10 @@ public class NewWarp {
 				OnLines pts = new OnLines(lineDists,x,y);
 				
 				if(pts.yesNo() == 1){ //在線上
-					int xS = lines[pts.lineNum()][0];
-					int yS = lines[pts.lineNum()][1];
-					int xE = lines[pts.lineNum()][2];
-					int yE = lines[pts.lineNum()][3];
+					int xS = lines.get(pts.lineNum())[0];
+					int yS = lines.get(pts.lineNum())[1];
+					int xE = lines.get(pts.lineNum())[2];
+					int yE = lines.get(pts.lineNum())[3];
 					
 					int dxS = lineDists[pts.lineNum()][0];
 					int dyS = lineDists[pts.lineNum()][1];
@@ -546,8 +569,8 @@ public class NewWarp {
 			Imgproc.line(source, pt1, pt1, new Scalar(25,55,220),5);
 		}
 		for(int p=0;p<linesR;p++){
-			Point pt1= new Point(lines[p][0],lines[p][1]);
-			Point pt2= new Point(lines[p][2],lines[p][3]);
+			Point pt1= new Point(lines.get(p)[0],lines.get(p)[1]);
+			Point pt2= new Point(lines.get(p)[2],lines.get(p)[3]);
 			Imgproc.line(source, pt1, pt2, new Scalar(225,0,0),1);
 		}
 		image = matToBufferedImage(source);
