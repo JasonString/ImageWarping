@@ -27,6 +27,7 @@ import javax.swing.JMenuItem;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTextField;
+import javax.swing.text.StyledEditorKit.ForegroundAction;
 import javax.swing.JButton;
 
 public class NewWarp {
@@ -188,14 +189,25 @@ public class NewWarp {
 		String line = "";
         String cvsSplitBy = ",";
         ArrayList<String[]> dataList = new ArrayList<String[]>();
-		try(BufferedReader br = new BufferedReader(new FileReader("src//jason//book.jpg"))) {
+        
+        
+        try(BufferedReader br = new BufferedReader(new FileReader("src//jason//lineoutput.csv"))) {
 			while ((line = br.readLine()) != null) {
                 dataList.add(line.split(cvsSplitBy));
             }
 		}catch (IOException e) {
 			e.printStackTrace();
 		}
+        
+        int[][] lines0 = new int[dataList.size()][4];
+        for(int i=0; i<dataList.size(); i++){
+			System.out.println(dataList.get(i)+","+dataList.size()+","+i);
+			for(int j=0; j<4; j++){
+				lines0[i][j]=Integer.parseInt(dataList.get(i)[j]);
+			}
+		}
 		System.out.println(dataList.get(1)[0]);
+		/*
 		int[][] lines0={
 				{486, 88, 786, 85},
 				{339, 214, 796, 213},
@@ -203,6 +215,7 @@ public class NewWarp {
 				{533, 285, 539, 531}
 				
 		};
+		*/
 		ArrayList<int[]> lines = new ArrayList<int[]>();
 		for(int i=0; i<lines0.length; i++){
 				lines.add(lines0[i]);
