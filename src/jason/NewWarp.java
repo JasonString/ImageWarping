@@ -60,7 +60,7 @@ public class NewWarp {
 	 * Create the application.
 	 */
 	public NewWarp() {
-		long timeS, timeE, totalT;
+		double timeS, timeE, totalT;
 	
 		timeS = System.currentTimeMillis();
 		imageUri = "src//jason//book.jpg";
@@ -70,8 +70,8 @@ public class NewWarp {
 		
 		initialize();
 		
-		totalT = timeE-timeS;
-		System.out.println(totalT);
+		totalT = (timeE-timeS)/1000;
+		System.out.println(totalT+"s");
 	}
 
 	/**
@@ -186,9 +186,10 @@ public class NewWarp {
 				{10,10},
 				
 		};
+		//讀線
 		String line = "";
         String cvsSplitBy = ",";
-        ArrayList<String[]> dataList = new ArrayList<String[]>();
+        ArrayList<String[]> dataList = new ArrayList<String[]>(); //線string
         
         
         try(BufferedReader br = new BufferedReader(new FileReader("src//jason//lineoutput.csv"))) {
@@ -198,33 +199,19 @@ public class NewWarp {
 		}catch (IOException e) {
 			e.printStackTrace();
 		}
-        
+        //string 轉 int
         int[][] lines0 = new int[dataList.size()][4];
         for(int i=0; i<dataList.size(); i++){
-			System.out.println(dataList.get(i)+","+dataList.size()+","+i);
 			for(int j=0; j<4; j++){
 				lines0[i][j]=Integer.parseInt(dataList.get(i)[j]);
 			}
 		}
-		System.out.println(dataList.get(1)[0]);
-		/*
-		int[][] lines0={
-				{486, 88, 786, 85},
-				{339, 214, 796, 213},
-				{77, 396, 800, 396},
-				{533, 285, 539, 531}
-				
-		};
-		*/
+		//int[][] 轉 arrayList
 		ArrayList<int[]> lines = new ArrayList<int[]>();
 		for(int i=0; i<lines0.length; i++){
 				lines.add(lines0[i]);
 		}
-		/*
-		for(int i=0; i<lines0.length; i++){
-			System.out.println(lines.get(i)[1]);
-		}
-		*/
+		
 		int[][] shiftPoints = new int[points.length][2];
 		double[][] invShifts = new double[shifts.length][2];
 		for(int i=0; i<points.length; i++){
