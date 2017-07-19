@@ -40,6 +40,10 @@ public class NewWarp {
 	private String imageUri;
 	private JTextField txtMeshSize;
 	private int meshSize;
+	private int ptOrSft = 0;
+	private ArrayList<int[]> points = new ArrayList<int[]>();
+	private ArrayList<double[]> shifts = new ArrayList<double[]>();
+	private int temp[] = new int[2];
 	/**
 	 * Launch the application.
 	 */
@@ -85,11 +89,34 @@ public class NewWarp {
 		frame.getContentPane().setLayout(null);
 		
 		JLabel lblNewLabel = new JLabel("");
+		
 		lblNewLabel.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent arg0) {
+			public void mouseClicked(MouseEvent arg0) { //點擊新增點
+				
 				System.out.println(arg0.getX()+","+arg0.getY());
+				int addpt[]={arg0.getX(),arg0.getY()};
+				System.out.println(addpt[0]);
+				System.out.println(addpt[1]);
+				double addsft[] = new double[2];
+				if(ptOrSft == 0){
+					for(int i=0; i<2; i++){
+						temp[i]= addpt[i];
+					}
+					points.add(addpt);
+					ptOrSft =1;
+				}
+				else{
+					for(int i=0; i<2; i++){
+						addsft[i]=addpt[i]-temp[i];
+					}
+					shifts.add(addsft);
+					ptOrSft =0;
+				}
+				//System.out.println(addpt[1]);
+				//System.out.println(addsft[1]);
 			}
+			
 		});
 		lblNewLabel.setBounds(50, 60, image.getWidth(), image.getHeight());
 		//ImageIcon icon = new ImageIcon(image);
@@ -173,19 +200,28 @@ public class NewWarp {
 				
 		int rows1 = sourceG.rows();
 		int cols1 = sourceG.cols();
-
-		int[][] points= {
+		//線
+		int[][] points0= {
 				{378, 153},
 				{299, 286},
 				{83, 521},
 				
 		};
-		double[][] shifts= {
+		
+		for(int i=0; i<points0.length; i++){
+				points.add(points0[i]);
+		}
+		//位移
+		double[][] shifts0= {
 				{-20,-20},
 				{-30,-5},
 				{10,10},
 				
 		};
+		
+		for(int i=0; i<shifts0.length; i++){
+				shifts.add(shifts0[i]);
+		}
 		//讀線
 		String line = "";
         String cvsSplitBy = ",";
@@ -199,38 +235,38 @@ public class NewWarp {
 		}catch (IOException e) {
 			e.printStackTrace();
 		}
-        //string 轉 int
+        	//string 轉 int
         int[][] lines0 = new int[dataList.size()][4];
         for(int i=0; i<dataList.size(); i++){
 			for(int j=0; j<4; j++){
 				lines0[i][j]=Integer.parseInt(dataList.get(i)[j]);
 			}
 		}
-		//int[][] 轉 arrayList
+			//int[][] 轉 arrayList
 		ArrayList<int[]> lines = new ArrayList<int[]>();
 		for(int i=0; i<lines0.length; i++){
 				lines.add(lines0[i]);
 		}
 		
-		int[][] shiftPoints = new int[points.length][2];
-		double[][] invShifts = new double[shifts.length][2];
-		for(int i=0; i<points.length; i++){
-			for(int j=0; j<points[0].length; j++){
-				shiftPoints[i][j]=points[i][j]+(int)shifts[i][j];//算移動後的點
-				invShifts[i][j]=-shifts[i][j];//算相反shifts
+		int[][] shiftPoints = new int[points.size()][2];
+		double[][] invShifts = new double[shifts.size()][2];
+		for(int i=0; i<points.size(); i++){
+			for(int j=0; j<2; j++){//只有兩個點
+				shiftPoints[i][j]=points.get(i)[j]+(int)shifts.get(i)[j];//算移動後的點
+				invShifts[i][j]=-shifts.get(i)[j];//算相反shifts
 			}
 		}
 				
 		
 		//計算線的位移
-		int  pointsCnt = points.length;
+		int  pointsCnt = points.size();
 		double diagonal = Math.sqrt(rows1*rows1+cols1*cols1);
 		int linesR = lines.size();
 		int linesC = 4;
 		
-		double[] dists = new double[points.length];
-		double[] effects = new double[points.length];
-		double[] newEffects = new double[points.length];
+		double[] dists = new double[points.size()];
+		double[] effects = new double[points.size()];
+		double[] newEffects = new double[points.size()];
 		int[][] lineDists = new int[linesR][linesC];
 		
 		for(int i=0; i<linesR; i++){
@@ -242,7 +278,7 @@ public class NewWarp {
 			double[] shift ={0,0};
 			//計算點的影響力S
 			for(int k=0; k<pointsCnt; k++){
-				dists[k] = Math.sqrt((xS-points[k][0])*(xS-points[k][0])+(yS-points[k][1])*(yS-points[k][1]));
+				dists[k] = Math.sqrt((xS-points.get(k)[0])*(xS-points.get(k)[0])+(yS-points.get(k)[1])*(yS-points.get(k)[1]));
 				effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
 				//System.out.println(i+","+effects[k]);
 				if(effects[k]<0.1){
@@ -291,13 +327,13 @@ public class NewWarp {
 					}
 				}
 				for(int k=0; k<newEffects.length; k++){
-					shift[0] = shift[0]+newEffects[k]*shifts[k][0];
-					shift[1] = shift[1]+newEffects[k]*shifts[k][1];
+					shift[0] = shift[0]+newEffects[k]*shifts.get(k)[0];
+					shift[1] = shift[1]+newEffects[k]*shifts.get(k)[1];
 				}
 				
 			}
 			else{
-				shift = shifts[matchPoint];
+				shift = shifts.get(matchPoint);
 			}
 			
 			lineDists[i][0] = xS+(int)Math.round(shift[0]);
@@ -306,7 +342,7 @@ public class NewWarp {
 			shift = new double[]{0,0};
 			//計算點的影響力E
 			for(int k=0; k<pointsCnt; k++){
-				dists[k] = Math.sqrt((xE-points[k][0])*(xE-points[k][0])+(yE-points[k][1])*(yE-points[k][1]));
+				dists[k] = Math.sqrt((xE-points.get(k)[0])*(xE-points.get(k)[0])+(yE-points.get(k)[1])*(yE-points.get(k)[1]));
 				effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
 
 				if(effects[k]<0.1){
@@ -354,13 +390,13 @@ public class NewWarp {
 					}
 				}
 				for(int k=0; k<newEffects.length; k++){
-					shift[0] = shift[0]+newEffects[k]*shifts[k][0];
-					shift[1] = shift[1]+newEffects[k]*shifts[k][1];
+					shift[0] = shift[0]+newEffects[k]*shifts.get(k)[0];
+					shift[1] = shift[1]+newEffects[k]*shifts.get(k)[1];
 				}
 				
 			}
 			else{
-				shift = shifts[matchPoint];
+				shift = shifts.get(matchPoint);
 			}
 			
 			lineDists[i][2] = xE+(int)Math.round(shift[0]);
@@ -369,9 +405,9 @@ public class NewWarp {
 		}
 		//計算網格點的來源
 		
-		dists = new double[points.length];
-		effects = new double[points.length];
-		newEffects = new double[points.length];
+		dists = new double[points.size()];
+		effects = new double[points.size()];
+		newEffects = new double[points.size()];
 		int[][] flag = new int[cols1][rows1];
 		int[][] keyXs = new int[cols1][rows1];/////////////////之後可以改在同一個陣列
 		int[][] keyYs = new int[cols1][rows1];
@@ -418,8 +454,8 @@ public class NewWarp {
 					double [][] newSifts;
 					if(newPt.newPtSetX.isEmpty() == false){//如果有值(有新的點)
 						
-						newPoints= new int[newPt.newPtSetX.size()+points.length][2];//陣列初始化
-						newSifts= new double[(int)newPt.newSiftsX.size()+shifts.length][2];
+						newPoints= new int[newPt.newPtSetX.size()+points.size()][2];//陣列初始化
+						newSifts= new double[(int)newPt.newSiftsX.size()+shifts.size()][2];
 						
 						//System.out.println(newPt.newPtSetX.size()+points.length+","+newPt.newSiftsX.size()+shifts.length);
 						
@@ -565,7 +601,7 @@ public class NewWarp {
 					}
 				}
 			}*/
-			Point pt1= new Point(points[p][0],points[p][1]);
+			Point pt1= new Point(points.get(p)[0],points.get(p)[1]);
 			Imgproc.line(source, pt1, pt1, new Scalar(25,55,220),5);
 		}
 		for(int p=0;p<linesR;p++){
