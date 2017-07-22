@@ -592,6 +592,7 @@ public class NewWarp {
 				}
 			}
 		//}
+		//µeÂI
 		for(int p=0;p<pointsCnt;p++){
 			/*for(int x=0;x<source.cols();x++){
 				for(int y=0;y<source.rows();y++){
@@ -601,9 +602,14 @@ public class NewWarp {
 					}
 				}
 			}*/
-			Point pt1= new Point(points.get(p)[0],points.get(p)[1]);
+			Point pt1 = new Point(points.get(p)[0],points.get(p)[1]);
 			Imgproc.line(source, pt1, pt1, new Scalar(25,55,220),5);
+			Point pt2 = new Point(points.get(p)[0]+shifts.get(p)[0],points.get(p)[1]+shifts.get(p)[1]);
+			Imgproc.line(source, pt2, pt2, new Scalar(255,55,220),5);
+					
 		}
+		
+		//¹º½u
 		for(int p=0;p<linesR;p++){
 			Point pt1= new Point(lines.get(p)[0],lines.get(p)[1]);
 			Point pt2= new Point(lines.get(p)[2],lines.get(p)[3]);
