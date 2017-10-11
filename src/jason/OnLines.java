@@ -51,7 +51,7 @@ public class OnLines {
 			newPt[0] = xS + c*(xE-xS);
 			newPt[1] = yS + c*(yE-yS);
 			c = Math.sqrt( (pX-newPt[0])*(pX-newPt[0])+(pY-newPt[1])*(pY-newPt[1]) );
-			if(c < 1.5){
+			if(c < 15){//1.5
 				yesNo = 1;
 			}
 			else{
