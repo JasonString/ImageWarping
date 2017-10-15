@@ -11,6 +11,8 @@ import javax.swing.JLabel;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 import org.opencv.core.MatOfInt;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -59,7 +61,7 @@ public class NewWarp {
 		System.out.println((timeE-timeS));
 	}
 	private void process(){
-		Mat source = Imgcodecs.imread("src/jason/xman.jpg");
+		Mat source = Imgcodecs.imread("src/jason/tile.jpg");
 		dst = new Mat(source.rows(),source.cols(),source.type());
 		Mat sourceG = new Mat(source.rows(),source.cols(),source.type());
 		Imgproc.cvtColor(source, sourceG, Imgproc.COLOR_RGB2GRAY);
@@ -67,33 +69,30 @@ public class NewWarp {
 		//dst變黑
 				for(int x=0;x<dst.cols();x++){
 					for(int y=0;y<dst.rows();y++){
-						double[] temp= {1,1,1};
+						double[] temp= {1,1,255};
 						dst.put(y, x, temp);
 					}
 				}
 				
-		int rows1 = sourceG.rows();
-		int cols1 = sourceG.cols();
+		int rows1 = source.rows();
+		int cols1 = source.cols();
 
 		int[][] points= {
-				{208,88},
-				{333,97},
-				{491,274},
-				{84,256}
+				{62,38},
+				{126,29},
+				{83,81},
+				{124,114}
 		};
 		double[][] shifts= {
-			 	{-30,-10},
-				{50,3},
-				{2,35},
-				{-35,40}
+				{-10,-18},
+				{19,-15},
+				{-35,30},
+				{18,25},
 		};
 		int[][] lines={
-				{68,145,213,245},
-				{54,168,203,256},
-				{39,194,197,269},
-				{329,275,489,177},
-				{338,291,507,208},
-				{344,307,515,241},
+				{0,71, 155, 69},
+				{97, 0, 102, 149 },
+				{28, 0, 24, 148},
 				
 		};
 		
@@ -257,8 +256,8 @@ public class NewWarp {
 		dists = new double[points.length];
 		effects = new double[points.length];
 		newEffects = new double[points.length];
-		for(int x=1; x<=cols1; x++){
-			for(int y=1; y<=rows1; y++){
+		for(int x=0; x<cols1; x++){
+			for(int y=0; y<rows1; y++){
 				//System.out.println(x+","+y);
 				OnLines pts = new OnLines(lineDists,x,y);
 				
@@ -273,6 +272,7 @@ public class NewWarp {
 					int dxE = lineDists[pts.lineNum()][2];
 					int dyE = lineDists[pts.lineNum()][3];
 					DistLinePt linePt = new DistLinePt(dxS, dyS, dxE, dyE, x, y, xS, yS, xE, yE);
+					//System.out.println(x+","+y+","+linePt.getY()+","+linePt.getX());
 					dst.put(y, x, source.get( (int)Math.round(linePt.getY()), (int)Math.round(linePt.getX()) ) );
 				}
 				else{
@@ -287,7 +287,9 @@ public class NewWarp {
 							newPt.newSiftsX.remove(i);
 							newPt.newSiftsY.remove(i);
 						}
+						//if(x==8 && y ==106){System.out.println(i+","+(int)newPt.newPtSetX.get(i)+","+(int)newPt.newPtSetY.get(i));}
 					}
+					
 					//合併新舊點
 					int [][] newPoints;
 					double [][] newSifts;
@@ -326,12 +328,25 @@ public class NewWarp {
 					double[] shift = new double[2];
 					for(int k=0; k<newPoints2.length; k++){
 						dists[k] = Math.sqrt((x-newPoints2[k][0])*(x-newPoints2[k][0])+(y-newPoints2[k][1])*(y-newPoints2[k][1]));
-						effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
+						if(k> pointsCnt-1){//這邊計算線上特徵點的加權
+							effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
+						}
+						else{
+							effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
+						}
+						
 						//System.out.println(k+","+effects[k]);
 						if(effects[k]<0.1){
 							effects[k] = 0;
 						}
+						//System.out.println(newPoints2.length+","+pointsCnt);
+						if(k> pointsCnt-1){//這邊計算線上特徵點的加權
+							
+						}
 						newEffects[k] = effects[k];
+						if(x==8 && y ==106){
+							System.out.println(k+","+effects[k]+","+dists[k]+","+newPoints2[k][0]+","+newPoints2[k][1]);/////////////////////
+						}
 					}
 //
 					int counter = 0;
@@ -382,6 +397,9 @@ public class NewWarp {
 						
 						
 						for(int k=0; k<newEffects.length; k++){
+							if(x==8 && y ==106){
+								System.out.println(k+","+newEffects[k]);/////////////////////
+							}
 							shift[0] = shift[0]+newEffects[k]*newSifts2[k][0];
 							shift[1] = shift[1]+newEffects[k]*newSifts2[k][1];
 						}
@@ -399,7 +417,17 @@ public class NewWarp {
 				
 			}
 		}
-			
+		for(int p=0; p<pointsCnt; p++){
+			Point pt1 = new Point(points[p][0],points[p][1]);
+			Imgproc.line(source, pt1, pt1, new Scalar(25,55,220),5);
+			Point pt2 = new Point(points[p][0]+shifts[p][0],points[p][1]+shifts[p][1]);
+			Imgproc.line(source, pt2, pt2, new Scalar(255,55,220),5);
+		}
+		for(int p=0;p<linesR;p++){
+			Point pt1= new Point(lines[p][0],lines[p][1]);
+			Point pt2= new Point(lines[p][2],lines[p][3]);
+			Imgproc.line(source, pt1, pt2, new Scalar(225,0,0),1);
+		}
 		image = matToBufferedImage(source);
 		image2 = matToBufferedImage(dst);
 	}

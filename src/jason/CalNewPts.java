@@ -23,6 +23,7 @@ public class CalNewPts {
 			int dyS = lineDists[i][1];
 			int dxE = lineDists[i][2];
 			int dyE = lineDists[i][3];
+			
 			if(lineNumS[i] == 1){
 				
 				//System.out.println(x+","+y+","+xS+","+xE+","+yS+","+yE);
@@ -34,19 +35,23 @@ public class CalNewPts {
 				
 				//System.out.println("newX"+newPtX);
 				//System.out.println("new"+newPtY);
-				
+				//if(x==8 && y ==106){System.out.println(i+","+newPtX+","+newPtY);}
 				DistLinePt nLinePt = new DistLinePt(xS, yS, xE, yE, newPtX, newPtY, dxS, dyS, dxE, dyE);
 				//newPtSet[i][0] = (int) Math.round(nLinePt.getX());
 				//newPtSet[i][1] = (int) Math.round(nLinePt.getY());
 				
 				//System.out.println(nLinePt.getX());
 				//System.out.println(nLinePt.getY());
-				
+				/*
 				newPtSetX.add( (int) Math.round(nLinePt.getX()) );
 				newPtSetY.add( (int) Math.round(nLinePt.getY()) );
 				newSiftsX.add( (int) Math.round(nLinePt.getX())-newPtX );
 				newSiftsY.add( (int) Math.round(nLinePt.getY())-newPtY );
-				
+				*/
+				newPtSetX.add( newPtX );
+				newPtSetY.add( newPtY );
+				newSiftsX.add( (int) Math.round(nLinePt.getX())-newPtX );
+				newSiftsY.add( (int) Math.round(nLinePt.getY())-newPtY );
 				
 			}
 			if(lineSS[i] == 1){
