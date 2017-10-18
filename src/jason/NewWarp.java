@@ -37,7 +37,7 @@ public class NewWarp {
 	private BufferedImage image;
 	private BufferedImage image2;
 	private Mat source;
-	private Mat playSource; //Á×§Ksource³Q­×§ï
+	private Mat playSource; //é¿å…sourceè¢«ä¿®æ”¹
 	private Mat dst;
 	private String imageUri;
 	private JTextField txtMeshSize;
@@ -72,7 +72,7 @@ public class NewWarp {
 		imageUri = "src//jason//book.jpg";
 		source = Imgcodecs.imread(imageUri);//src//jason//book.jpg
 		playSource = new Mat(source.rows(),source.cols(),source.type());
-		for(int x=0;x<source.cols();x++){//¥ı±µ¤Usource
+		for(int x=0;x<source.cols();x++){//å…ˆæ¥ä¸‹source
 			for(int y=0;y<source.rows();y++){
 				playSource.put(y, x, source.get(y, x));
 			}
@@ -103,7 +103,7 @@ public class NewWarp {
 		
 		lblNewLabel.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent arg0) { //ÂIÀ»·s¼WÂI
+			public void mouseClicked(MouseEvent arg0) { //é»æ“Šæ–°å¢é»
 				
 				
 				int addpt[]={arg0.getX(),arg0.getY()};
@@ -127,7 +127,7 @@ public class NewWarp {
 					System.out.println("{"+arg0.getX()+","+arg0.getY()+"}");
 					System.out.println("S{"+(int)addsft[0]+","+(int)addsft[1]+"}");
 				}
-				//µeÂIS//³o¸Ì¨C¥[¤W¤@­ÓÂI¡A´N­«·sµe¤@¦¸
+				//ç•«é»S//é€™è£¡æ¯åŠ ä¸Šä¸€å€‹é»ï¼Œå°±é‡æ–°ç•«ä¸€æ¬¡
 				
 				for(int p=0;p<points.size();p++){
 					if(ptOrSft == 1){
@@ -141,7 +141,7 @@ public class NewWarp {
 				}
 				image = matToBufferedImage(playSource);
 				lblNewLabel.setIcon( new ImageIcon(image));
-				//µeÂIE//
+				//ç•«é»E//
 			}
 			
 		});
@@ -189,14 +189,14 @@ public class NewWarp {
 				System.out.println("Save Successfully");
 			}
 		});
-		//ÅªÀÉ
+		//è®€æª”
 		JMenuItem mntmOpenImage = new JMenuItem("open image");
 		JFileChooser imageFileC = new JFileChooser();
 		
 		mntmOpenImage.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				//imageFileC.setFileFilter();¿z¿ï
+				//imageFileC.setFileFilter();ç¯©é¸
 				imageFileC.setCurrentDirectory(new java.io.File("src/jason"));
 				if(imageFileC.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
 				 	Path imagePath = imageFileC.getSelectedFile().toPath();
@@ -217,7 +217,7 @@ public class NewWarp {
 		Mat sourceG = new Mat(source.rows(),source.cols(),source.type());
 		Imgproc.cvtColor(source, sourceG, Imgproc.COLOR_RGB2GRAY);
 		
-		//dstÅÜ¶Â
+		//dstè®Šé»‘
 		for(int x=0;x<dst.cols();x++){
 			for(int y=0;y<dst.rows();y++){
 				double[] temp= {1,1,1};
@@ -227,7 +227,7 @@ public class NewWarp {
 				
 		int rows1 = sourceG.rows();
 		int cols1 = sourceG.cols();
-		//½u
+		//ç·š
 		int[][] points0= {
 				{445,143},
 				{810,153},
@@ -241,7 +241,7 @@ public class NewWarp {
 		for(int i=0; i<points0.length; i++){
 				points.add(points0[i]);
 		}
-		//¦ì²¾
+		//ä½ç§»
 		double[][] shifts0= {
 				{10,-78},
 				{19,-90},
@@ -253,10 +253,10 @@ public class NewWarp {
 		for(int i=0; i<shifts0.length; i++){
 				shifts.add(shifts0[i]);
 		}
-		//Åª½u
+		//è®€ç·š
 		String line = "";
         String cvsSplitBy = ",";
-        ArrayList<String[]> dataList = new ArrayList<String[]>(); //½ustring
+        ArrayList<String[]> dataList = new ArrayList<String[]>(); //ç·šstring
         
         
         try(BufferedReader br = new BufferedReader(new FileReader("src//jason//lineoutput.csv"))) {
@@ -266,14 +266,14 @@ public class NewWarp {
 		}catch (IOException e) {
 			e.printStackTrace();
 		}
-        	//string Âà int
+        	//string è½‰ int
         int[][] lines0 = new int[dataList.size()][4];
         for(int i=0; i<dataList.size(); i++){
 			for(int j=0; j<4; j++){
 				lines0[i][j]=Integer.parseInt(dataList.get(i)[j]);
 			}
 		}
-			//int[][] Âà arrayList
+			//int[][] è½‰ arrayList
 		ArrayList<int[]> lines = new ArrayList<int[]>();
 		for(int i=0; i<lines0.length; i++){
 				lines.add(lines0[i]);
@@ -282,14 +282,14 @@ public class NewWarp {
 		int[][] shiftPoints = new int[points.size()][2];
 		double[][] invShifts = new double[shifts.size()][2];
 		for(int i=0; i<points.size(); i++){
-			for(int j=0; j<2; j++){//¥u¦³¨â­ÓÂI
-				shiftPoints[i][j]=points.get(i)[j]+(int)shifts.get(i)[j];//ºâ²¾°Ê«áªºÂI
-				invShifts[i][j]=-shifts.get(i)[j];//ºâ¬Û¤Ïshifts
+			for(int j=0; j<2; j++){//åªæœ‰å…©å€‹é»
+				shiftPoints[i][j]=points.get(i)[j]+(int)shifts.get(i)[j];//ç®—ç§»å‹•å¾Œçš„é»
+				invShifts[i][j]=-shifts.get(i)[j];//ç®—ç›¸åshifts
 			}
 		}
 				
 		
-		//­pºâ½uªº¦ì²¾
+		//è¨ˆç®—ç·šçš„ä½ç§»
 		int  pointsCnt = points.size();
 		double diagonal = Math.sqrt(rows1*rows1+cols1*cols1);
 		int linesR = lines.size();
@@ -307,7 +307,7 @@ public class NewWarp {
 			int yE = lines.get(i)[3];
 			
 			double[] shift ={0,0};
-			//­pºâÂIªº¼vÅT¤OS
+			//è¨ˆç®—é»çš„å½±éŸ¿åŠ›S
 			for(int k=0; k<pointsCnt; k++){
 				dists[k] = Math.sqrt((xS-points.get(k)[0])*(xS-points.get(k)[0])+(yS-points.get(k)[1])*(yS-points.get(k)[1]));
 				effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
@@ -319,7 +319,7 @@ public class NewWarp {
 				//System.out.println(k+","+effects[k]);
 				newEffects[k] = effects[k];
 			}
-			//½Õ¾ãÅv­«
+			//èª¿æ•´æ¬Šé‡
 			int counter = 0;
 			int matchPoint = 0;
 			for(int k=0; k<dists.length; k++){
@@ -329,7 +329,7 @@ public class NewWarp {
 				}
 			}
 			if (counter == 0){
-				double sum = 0; //Åv­«¥[Á`
+				double sum = 0; //æ¬Šé‡åŠ ç¸½
 				for(int k=0; k<effects.length; k++){
 					sum = sum+effects[k];
 				}
@@ -373,7 +373,7 @@ public class NewWarp {
 			lineDists[i][1] = yS+(int)Math.round(shift[1]);
 
 			shift = new double[]{0,0};
-			//­pºâÂIªº¼vÅT¤OE
+			//è¨ˆç®—é»çš„å½±éŸ¿åŠ›E
 			for(int k=0; k<pointsCnt; k++){
 				dists[k] = Math.sqrt((xE-points.get(k)[0])*(xE-points.get(k)[0])+(yE-points.get(k)[1])*(yE-points.get(k)[1]));
 				effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
@@ -392,7 +392,7 @@ public class NewWarp {
 				}
 			}
 			if (counter == 0){				
-				double sum = 0; //Åv­«¥[Á`
+				double sum = 0; //æ¬Šé‡åŠ ç¸½
 				for(int k=0; k<effects.length; k++){
 					sum = sum+effects[k];
 				}
@@ -435,13 +435,13 @@ public class NewWarp {
 			lineDists[i][3] = yE+(int)Math.round(shift[1]);
 			
 		}
-		//­pºâºô®æÂIªº¨Ó·½
+		//è¨ˆç®—ç¶²æ ¼é»çš„ä¾†æº
 		
 		dists = new double[points.size()];
 		effects = new double[points.size()];
 		newEffects = new double[points.size()];
 		int[][] flag = new int[cols1][rows1];
-		int[][] keyXs = new int[cols1][rows1];/////////////////¤§«á¥i¥H§ï¦b¦P¤@­Ó°}¦C
+		int[][] keyXs = new int[cols1][rows1];/////////////////ä¹‹å¾Œå¯ä»¥æ”¹åœ¨åŒä¸€å€‹é™£åˆ—
 		int[][] keyYs = new int[cols1][rows1];
 		double[][] keyXs2 = new double[cols1][rows1];
 		double[][] keyYs2 = new double[cols1][rows1];
@@ -451,7 +451,7 @@ public class NewWarp {
 				//System.out.println(x+","+y);
 				OnLines pts = new OnLines(lineDists,x,y);
 				
-				if(pts.yesNo() == 100){ //¦b½u¤W
+				if(pts.yesNo() == 100){ //åœ¨ç·šä¸Š
 					
 					int xS = lines.get(pts.lineNum())[0];
 					int yS = lines.get(pts.lineNum())[1];
@@ -462,7 +462,7 @@ public class NewWarp {
 					int dyS = lineDists[pts.lineNum()][1];
 					int dxE = lineDists[pts.lineNum()][2];
 					int dyE = lineDists[pts.lineNum()][3];
-					DistLinePt linePt = new DistLinePt(dxS, dyS, dxE, dyE, x, y, xS, yS, xE, yE);//­pºâ½u¤WÂIªº¦ì²¾
+					DistLinePt linePt = new DistLinePt(dxS, dyS, dxE, dyE, x, y, xS, yS, xE, yE);//è¨ˆç®—ç·šä¸Šé»çš„ä½ç§»
 					dst.put(y, x, source.get( (int)Math.round(linePt.getY()), (int)Math.round(linePt.getX()) ) );
 					keyXs[x][y]=(int)Math.round(linePt.getX());
 					keyYs[x][y]=(int)Math.round(linePt.getY());
@@ -474,7 +474,7 @@ public class NewWarp {
 					CalNewPts newPt = new CalNewPts(inLineReg.getLineNumSet(),inLineReg.getLineS(),inLineReg.getLineE(),lineDists, lines, x, y);
 					
 					for(int i=0; i<newPt.newPtSetX.size(); i++){
-						if(newPt.newPtSetX.get(i) == newPt.newPtSetY.get(i) && (int)newPt.newPtSetX.get(i) == 0){ //²¾°£0
+						if(newPt.newPtSetX.get(i) == newPt.newPtSetY.get(i) && (int)newPt.newPtSetX.get(i) == 0){ //ç§»é™¤0
 							newPt.newPtSetX.remove(i);
 							newPt.newPtSetY.remove(i);
 							
@@ -482,19 +482,19 @@ public class NewWarp {
 							newPt.newSiftsY.remove(i);
 						}
 					}
-					//¦X¨Ö·sÂÂÂI
+					//åˆä½µæ–°èˆŠé»
 					int [][] newPoints;
 					double [][] newSifts;
-					if(newPt.newPtSetX.isEmpty() == false ){//¦pªG¦³­È(¦³·sªºÂI)
+					if(newPt.newPtSetX.isEmpty() == false ){//å¦‚æœæœ‰å€¼(æœ‰æ–°çš„é»)
 						
-						newPoints= new int[newPt.newPtSetX.size()+points.size()][2];//°}¦Cªì©l¤Æ
+						newPoints= new int[newPt.newPtSetX.size()+points.size()][2];//é™£åˆ—åˆå§‹åŒ–
 						newSifts= new double[(int)newPt.newSiftsX.size()+shifts.size()][2];
 						
 						//System.out.println(newPt.newPtSetX.size()+points.length+","+newPt.newSiftsX.size()+shifts.length);
 						
-						System.arraycopy(shiftPoints, 0, newPoints, 0, shiftPoints.length); //¥ı½Æ»s­ì¥»ªº¯S¼xÂI
+						System.arraycopy(shiftPoints, 0, newPoints, 0, shiftPoints.length); //å…ˆè¤‡è£½åŸæœ¬çš„ç‰¹å¾µé»
 						System.arraycopy(invShifts, 0, newSifts, 0, invShifts.length);
-						for(int i=0; i<newPt.newPtSetX.size(); i++){//¦A©ñ·sªº¯S¼xÂI
+						for(int i=0; i<newPt.newPtSetX.size(); i++){//å†æ”¾æ–°çš„ç‰¹å¾µé»
 							int onetwo[] = {(int)newPt.newPtSetX.get(i) , (int)newPt.newPtSetY.get(i)};
 //							for(int u=0; u<onetwo.length; u++){
 //								System.out.println("u:"+u+",qq:"+onetwo[u]);
@@ -509,7 +509,7 @@ public class NewWarp {
 						newPoints = shiftPoints;
 						newSifts = invShifts;
 					}
-					//¶}©l­pºâmeshªº¨Ó·½ÂI
+					//é–‹å§‹è¨ˆç®—meshçš„ä¾†æºé»
 					int [][] newPoints2;
 					double [][] newSifts2;
 					newPoints2 = newPoints;
@@ -537,9 +537,9 @@ public class NewWarp {
 						}
 					}
 					
-					if (counter == 0){ //¦pªG¤£¬O¯S¼xÂI¡]¯S¼xÂIª½±µ²¾°Ê¡^
+					if (counter == 0){ //å¦‚æœä¸æ˜¯ç‰¹å¾µé»ï¼ˆç‰¹å¾µé»ç›´æ¥ç§»å‹•ï¼‰
 //
-						double sum = 0; //Åv­«¥[Á`
+						double sum = 0; //æ¬Šé‡åŠ ç¸½
 						for(int k=0; k<effects.length; k++){
 							sum = sum+effects[k];
 						}
@@ -589,12 +589,12 @@ public class NewWarp {
 						shift = newSifts2[matchPoint];
 					}
 					keyXs[x][y]=x+(int)Math.round(shift[0]);
-					keyYs[x][y]=y+(int)Math.round(shift[1]);  //////////////////4±Ë5¤J ·|¤ñ¸û¦n?
+					keyYs[x][y]=y+(int)Math.round(shift[1]);  //////////////////4æ¨5å…¥ æœƒæ¯”è¼ƒå¥½?
 					keyXs2[x][y] = x+shift[0];
 					keyYs2[x][y] = y+shift[1];
 					//System.out.println(x+","+y+","+keyXs[x][y]+","+keyYs[x][y]);
 					if(keyYs[x][y]>=0 && keyXs[x][y] >=0 && keyXs[x][y]<cols1 && keyYs[x][y] <rows1){
-						dst.put(y, x, source.get( keyYs[x][y] , keyXs[x][y] ) );///////////////////////////////////////////ª`·N
+						dst.put(y, x, source.get( keyYs[x][y] , keyXs[x][y] ) );///////////////////////////////////////////æ³¨æ„
 						//System.out.println(x+","+y+","+keyXs[x][y]+","+keyYs[x][y]);
 					}
 					
@@ -603,7 +603,7 @@ public class NewWarp {
 			}
 		}
 		
-		//³B²z¥¼¶ñº¡ªºÂI
+		//è™•ç†æœªå¡«æ»¿çš„é»
 		//for(int m=1; m<meshSize; m++ ){
 			for(int x=0; x<cols1; x++){
 				for(int y=0; y<rows1; y++){
@@ -620,13 +620,13 @@ public class NewWarp {
 							System.out.println(x+","+y+","+a1+","+b1+","+a2+","+b2+","+a3+","+b3+","+a4+","+b4);
 						}*/
 						if(xx>0 && yy >0 && xx<cols1 && yy<rows1){
-							dst.put(y, x, source.get( yy , xx ) );//////////////////////////////////ª`·N
+							dst.put(y, x, source.get( yy , xx ) );//////////////////////////////////æ³¨æ„
 						}
 					}
 				}
 			}
 		//}
-		//µeÂI
+		//ç•«é»
 			
 		for(int x=0;x<source.cols();x++){
 			for(int y=0;y<source.rows();y++){
@@ -649,7 +649,7 @@ public class NewWarp {
 					
 		}
 		
-		//¹º½u
+		//åŠƒç·š
 		for(int p=0;p<linesR;p++){
 			Point pt1= new Point(lines.get(p)[0],lines.get(p)[1]);
 			Point pt2= new Point(lines.get(p)[2],lines.get(p)[3]);
