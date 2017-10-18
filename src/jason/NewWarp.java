@@ -61,7 +61,7 @@ public class NewWarp {
 		System.out.println((timeE-timeS));
 	}
 	private void process(){
-		Mat source = Imgcodecs.imread("src/jason/tile.jpg");
+		Mat source = Imgcodecs.imread("src/jason/cactus.jpg");
 		dst = new Mat(source.rows(),source.cols(),source.type());
 		Mat sourceG = new Mat(source.rows(),source.cols(),source.type());
 		Imgproc.cvtColor(source, sourceG, Imgproc.COLOR_RGB2GRAY);
@@ -69,7 +69,7 @@ public class NewWarp {
 		//dst變黑
 				for(int x=0;x<dst.cols();x++){
 					for(int y=0;y<dst.rows();y++){
-						double[] temp= {1,1,255};
+						double[] temp= {1,1,1};
 						dst.put(y, x, temp);
 					}
 				}
@@ -78,21 +78,45 @@ public class NewWarp {
 		int cols1 = source.cols();
 
 		int[][] points= {
+				/*
 				{62,38},
 				{126,29},
 				{83,81},
 				{124,114}
+				*/
+				{196,247},
+				{108,307},
+				{286,333},
+				{310,434},
+				{87,427},
+				//{256,286},
+				{145,270},
+				{302,264},
+				{628,312},
 		};
 		double[][] shifts= {
-				{-10,-18},
+				{1,-33},
+				{-30,-3},
+				{40,3},
+				{30,2},
+				{-35,2},
+				//{25,-30},
+				{-25,-25},
+				{-10,-38},
+				{1,-35},
+				/*
 				{19,-15},
 				{-35,30},
 				{18,25},
+				*/
 		};
 		int[][] lines={
+				/*
 				{0,71, 155, 69},
 				{97, 0, 102, 149 },
 				{28, 0, 24, 148},
+				*/
+				{315,270,489,78}
 				
 		};
 		
@@ -328,6 +352,15 @@ public class NewWarp {
 					double[] shift = new double[2];
 					for(int k=0; k<newPoints2.length; k++){
 						dists[k] = Math.sqrt((x-newPoints2[k][0])*(x-newPoints2[k][0])+(y-newPoints2[k][1])*(y-newPoints2[k][1]));
+						if(dists[k]<=3){
+							dists[k] = 0;
+						}
+						else if(dists[k]<=10){
+							//dists[k] = 1;
+						}
+						else if(dists[k]<=20){
+							//dists[k] = 3;
+						}
 						if(k> pointsCnt-1){//這邊計算線上特徵點的加權
 							effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
 						}
