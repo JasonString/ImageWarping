@@ -441,9 +441,9 @@ public class NewWarp {
 		effects = new double[points.size()];
 		newEffects = new double[points.size()];
 		int[][] flag = new int[cols1][rows1];
-		int[][] keyXs = new int[cols1][rows1];/////////////////之後可以改在同一個陣列
+		int[][] keyXs = new int[cols1][rows1];//這是整數用來取點///////////////之後可以改在同一個陣列
 		int[][] keyYs = new int[cols1][rows1];
-		double[][] keyXs2 = new double[cols1][rows1];
+		double[][] keyXs2 = new double[cols1][rows1];//這含小數，用來計算9宮格
 		double[][] keyYs2 = new double[cols1][rows1];
 		for(int x=0; x<cols1; x=x+meshSize){
 			for(int y=0; y<rows1; y=y+meshSize){
@@ -463,7 +463,7 @@ public class NewWarp {
 					int dxE = lineDists[pts.lineNum()][2];
 					int dyE = lineDists[pts.lineNum()][3];
 					DistLinePt linePt = new DistLinePt(dxS, dyS, dxE, dyE, x, y, xS, yS, xE, yE);//計算線上點的位移
-					dst.put(y, x, source.get( (int)Math.round(linePt.getY()), (int)Math.round(linePt.getX()) ) );
+					//dst.put(y, x, source.get( (int)Math.round(linePt.getY()), (int)Math.round(linePt.getX()) ) );
 					keyXs[x][y]=(int)Math.round(linePt.getX());
 					keyYs[x][y]=(int)Math.round(linePt.getY());
 					keyXs2[x][y] = linePt.getX();
@@ -520,7 +520,13 @@ public class NewWarp {
 					double[] shift = new double[2];
 					for(int k=0; k<newPoints2.length; k++){
 						dists[k] = Math.sqrt((x-newPoints2[k][0])*(x-newPoints2[k][0])+(y-newPoints2[k][1])*(y-newPoints2[k][1]));
-						effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
+						if(k>pointsCnt+1){
+							effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
+						}
+						else{
+							effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
+						}
+						
 						//System.out.println(k+","+effects[k]);
 						if(effects[k]<0.1){
 							effects[k] = 0;

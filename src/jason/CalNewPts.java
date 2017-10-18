@@ -42,8 +42,8 @@ public class CalNewPts {
 				//System.out.println(nLinePt.getX());
 				//System.out.println(nLinePt.getY());
 				
-				newPtSetX.add( (int) Math.round(nLinePt.getX()) );
-				newPtSetY.add( (int) Math.round(nLinePt.getY()) );
+				newPtSetX.add( newPtX );
+				newPtSetY.add( newPtY );
 				newSiftsX.add( (int) Math.round(nLinePt.getX())-newPtX );
 				newSiftsY.add( (int) Math.round(nLinePt.getY())-newPtY );
 				
