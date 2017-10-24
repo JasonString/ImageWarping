@@ -40,6 +40,7 @@ public class NewWarp {
 	private Mat playSource; //避免source被修改
 	private Mat dst;
 	private String imageUri;
+	private double totalT;
 	private JTextField txtMeshSize;
 	private int meshSize;
 	private int ptOrSft = 0;
@@ -66,11 +67,11 @@ public class NewWarp {
 	 * Create the application.
 	 */
 	public NewWarp() {
-		double timeS, timeE, totalT;
+		
 	
-		timeS = System.currentTimeMillis();
-		imageUri = "src//jason//book.jpg";
-		source = Imgcodecs.imread(imageUri);//src//jason//book.jpg
+		
+		imageUri = "src//jason//poker.jpg";
+		source = Imgcodecs.imread(imageUri);//src//jason//cactus.jpg
 		playSource = new Mat(source.rows(),source.cols(),source.type());
 		for(int x=0;x<source.cols();x++){//先接下source
 			for(int y=0;y<source.rows();y++){
@@ -82,12 +83,11 @@ public class NewWarp {
 		image2 = matToBufferedImage(dst);
 		meshSize = 20;
 		//process();
-		timeE = System.currentTimeMillis();
+		
 		
 		initialize();//GUI
 		
-		totalT = (timeE-timeS)/1000;
-		System.out.println(totalT+"s");
+		
 	}
 
 	/**
@@ -165,8 +165,15 @@ public class NewWarp {
 		btnRun.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent arg0) {
+				double timeS, timeE;
 				meshSize = Integer.valueOf(txtMeshSize.getText());
+				//計算and計時
+				timeS = System.currentTimeMillis();
 				process();
+				timeE = System.currentTimeMillis();
+				totalT = (timeE-timeS)/1000;
+				System.out.println(totalT+"s");
+				
 				lblNewLabel.setIcon( new ImageIcon(image));
 				lblNewLabel_1.setIcon(new ImageIcon(image2));
 			}
@@ -185,7 +192,7 @@ public class NewWarp {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				MatOfInt JpgCompressionRate = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, 100);
-				Imgcodecs.imwrite(imageUri.substring(0, imageUri.length()-4)+"Warp"+"["+meshSize+"]"+".jpg", dst, JpgCompressionRate);
+				Imgcodecs.imwrite(imageUri.substring(0, imageUri.length()-4)+"Warp"+"["+meshSize+"]"+"["+totalT+"s]"+".jpg", dst, JpgCompressionRate);
 				System.out.println("Save Successfully");
 			}
 		});
@@ -229,12 +236,16 @@ public class NewWarp {
 		int cols1 = sourceG.cols();
 		//線
 		int[][] points0= {
+				/*book
 				{445,143},
 				{810,153},
 				{388,395},
 				{677,399}
-				
-				
+				*/
+				{184,105},
+				{38,663},
+				{485,705},
+				{502,121},
 				
 		};
 		
@@ -243,11 +254,16 @@ public class NewWarp {
 		}
 		//位移
 		double[][] shifts0= {
+				/*
 				{10,-78},
 				{19,-90},
 				{-27,108},
 				{-3,93},
-				
+				*/
+				{-101,-46},
+				{-2,64},
+				{76,52},
+				{44,-69},
 		};
 		
 		for(int i=0; i<shifts0.length; i++){
@@ -451,7 +467,7 @@ public class NewWarp {
 				//System.out.println(x+","+y);
 				OnLines pts = new OnLines(lineDists,x,y);
 				
-				if(pts.yesNo() == 100){ //在線上
+				if(pts.yesNo() == 10000){ //在線上
 					
 					int xS = lines.get(pts.lineNum())[0];
 					int yS = lines.get(pts.lineNum())[1];
@@ -468,6 +484,7 @@ public class NewWarp {
 					keyYs[x][y]=(int)Math.round(linePt.getY());
 					keyXs2[x][y] = linePt.getX();
 					keyYs2[x][y] = linePt.getY();
+					System.out.println(100);
 				}
 				else{
 					WithInLineReg inLineReg = new WithInLineReg(lineDists, x, y);
@@ -536,22 +553,25 @@ public class NewWarp {
 //
 					int counter = 0;
 					int matchPoint = 0;
-					for(int k=0; k<dists.length; k++){
+					for(int k=0; k<dists.length; k++){//
 						if (dists[k]==0){
 							counter++;
 							matchPoint = k;
 						}
 					}
 					
-					if (counter == 0){ //如果不是特徵點（特徵點直接移動）
-//
+					//if (counter == 0){ //如果不是特徵點（特徵點直接移動）
+						if(x==140 && y==80){/////////////////////////////
+							System.out.println(x+","+y+",");
+						}
 						double sum = 0; //權重加總
 						for(int k=0; k<effects.length; k++){
 							sum = sum+effects[k];
 						}
-						if(x>=680 && x<=720 && y>=140 && y<=160){/////////////////////////////
+						if(x>=120 && x<=141 && y>=60 && y<=101){/////////////////////////////
 							//System.out.println(x+","+y+","+ sum);
 						}
+						
 						double power = 1;
 						while(Math.abs(sum-1)>0.1){
 							if(sum == 0){
@@ -588,12 +608,13 @@ public class NewWarp {
 							shift[0] = shift[0]+newEffects[k]*newSifts2[k][0];
 							shift[1] = shift[1]+newEffects[k]*newSifts2[k][1];
 						}
-						
-					}
+												
+					//}
+					/*
 					else{
-						
 						shift = newSifts2[matchPoint];
 					}
+					*/
 					keyXs[x][y]=x+(int)Math.round(shift[0]);
 					keyYs[x][y]=y+(int)Math.round(shift[1]);  //////////////////4捨5入 會比較好?
 					keyXs2[x][y] = x+shift[0];
@@ -660,11 +681,11 @@ public class NewWarp {
 			Point pt1= new Point(lines.get(p)[0],lines.get(p)[1]);
 			Point pt2= new Point(lines.get(p)[2],lines.get(p)[3]);
 			Imgproc.line(playSource, pt1, pt2, new Scalar(225,0,0),1);
-			
+			/*
 			Point pt3= new Point(lineDists[p][0],lineDists[p][1]);
 			Point pt4= new Point(lineDists[p][2],lineDists[p][3]);
 			Imgproc.line(dst, pt3, pt4, new Scalar(225,0,0),1);
-			
+			*/
 		}
 		image = matToBufferedImage(playSource);
 		image2 = matToBufferedImage(dst);
