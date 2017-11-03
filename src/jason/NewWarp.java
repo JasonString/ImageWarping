@@ -242,10 +242,16 @@ public class NewWarp {
 				{388,395},
 				{677,399}
 				*/
+				/*poker
 				{184,105},
 				{38,663},
 				{485,705},
 				{502,121},
+				*/
+				{213,112},
+				{32,621},
+				{466,708},
+				{522,152},
 				
 		};
 		
@@ -260,10 +266,16 @@ public class NewWarp {
 				{-27,108},
 				{-3,93},
 				*/
+				/*
 				{-101,-46},
 				{-2,64},
 				{76,52},
 				{44,-69},
+				*/
+				{-119,-48},
+				{44,90},
+				{50,14},
+				{-3,-92},
 		};
 		
 		for(int i=0; i<shifts0.length; i++){
@@ -560,16 +572,16 @@ public class NewWarp {
 						}
 					}
 					
-					//if (counter == 0){ //如果不是特徵點（特徵點直接移動）
-						if(x==140 && y==80){/////////////////////////////
-							System.out.println(x+","+y+",");
+					//if (counter == 0){ //如果不是特徵點（特徵點直接移動） //現在不看特徵點
+						if(x==80 && y==280){/////////////////////////////
+							//System.out.println(x+","+y+",");
 						}
 						double sum = 0; //權重加總
 						for(int k=0; k<effects.length; k++){
 							sum = sum+effects[k];
 						}
-						if(x>=120 && x<=141 && y>=60 && y<=101){/////////////////////////////
-							//System.out.println(x+","+y+","+ sum);
+						if(x>=80 && x<=141 && y>=280 && y<=321){/////////////////////////////
+							System.out.println(x+","+y+","+ sum);
 						}
 						
 						double power = 1;
@@ -603,11 +615,12 @@ public class NewWarp {
 							}
 						}
 						
-						
+					
 						for(int k=0; k<newEffects.length; k++){
 							shift[0] = shift[0]+newEffects[k]*newSifts2[k][0];
 							shift[1] = shift[1]+newEffects[k]*newSifts2[k][1];
 						}
+						
 												
 					//}
 					/*
@@ -623,6 +636,9 @@ public class NewWarp {
 					if(keyYs[x][y]>=0 && keyXs[x][y] >=0 && keyXs[x][y]<cols1 && keyYs[x][y] <rows1){
 						dst.put(y, x, source.get( keyYs[x][y] , keyXs[x][y] ) );///////////////////////////////////////////注意
 						//System.out.println(x+","+y+","+keyXs[x][y]+","+keyYs[x][y]);
+					}
+					if(x>=80 && x<=141 && y>=280 && y<=321){/////////////////////////////
+						//System.out.println("-"+x+","+y+","+keyXs[x][y]+","+keyYs[x][y]);
 					}
 					
 				}
@@ -642,7 +658,9 @@ public class NewWarp {
 						}
 						int xx = center.xx;
 						int yy = center.yy;
-												
+						if(x>=80 && x<=141 && y>=280 && y<=321){/////////////////////////////
+							//System.out.println("+"+x+","+y+","+xx+","+yy);
+						}					
 					/*	if(x > 30 && x <36 && y>70 && y<76){
 							System.out.println(x+","+y+","+a1+","+b1+","+a2+","+b2+","+a3+","+b3+","+a4+","+b4);
 						}*/
