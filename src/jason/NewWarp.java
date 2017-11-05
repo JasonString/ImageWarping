@@ -651,13 +651,41 @@ public class NewWarp {
 			for(int x=0; x<cols1; x++){
 				for(int y=0; y<rows1; y++){
 					if(flag[x][y] !=1){
-						MeshPt center = new MeshPt(x, y, meshSize, keyXs2, keyYs2);
 						
-						if(center.isOut==1){
+						int x1 = ((x-1)/meshSize)*meshSize;
+						int y1 = ((y-1)/meshSize)*meshSize;
+						
+						
+						MeshPt topL =    new MeshPt(x, y, x1-meshSize, y1-meshSize, meshSize, keyXs2, keyYs2);
+						MeshPt topC =    new MeshPt(x, y, x1,          y1-meshSize, meshSize, keyXs2, keyYs2);
+						MeshPt topR =    new MeshPt(x, y, x1+meshSize, y1-meshSize, meshSize, keyXs2, keyYs2);
+						MeshPt centerL = new MeshPt(x, y, x1-meshSize, y1         , meshSize, keyXs2, keyYs2);
+						MeshPt center =  new MeshPt(x, y, x1,          y1         , meshSize, keyXs2, keyYs2);
+						MeshPt centerR = new MeshPt(x, y, x1+meshSize, y1         , meshSize, keyXs2, keyYs2);
+						MeshPt botL =    new MeshPt(x, y, x1-meshSize, y1+meshSize, meshSize, keyXs2, keyYs2);
+						MeshPt botC =    new MeshPt(x, y, x1,          y1+meshSize, meshSize, keyXs2, keyYs2);
+						MeshPt botR =    new MeshPt(x, y, x1+meshSize, y1+meshSize, meshSize, keyXs2, keyYs2);
+						if(center.isOut==1){//邊緣無端點
 							continue;
 						}
-						int xx = center.xx;
-						int yy = center.yy;
+						int xx = (topL.xx*1+
+								topC.xx*2+
+								topR.xx*1+
+								centerL.xx*2+
+								center.xx*9+
+								centerR.xx*2+
+								botL.xx*1+
+								botC.xx*2+
+								botR.xx*1)/21;
+						int yy = (topL.yy*1+
+								topC.yy*2+
+								topR.yy*1+
+								centerL.yy*2+
+								center.yy*9+
+								centerR.yy*2+
+								botL.yy*1+
+								botC.yy*2+
+								botR.yy*1)/21;
 						if(x>=80 && x<=141 && y>=280 && y<=321){/////////////////////////////
 							//System.out.println("+"+x+","+y+","+xx+","+yy);
 						}					

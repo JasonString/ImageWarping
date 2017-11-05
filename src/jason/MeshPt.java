@@ -5,12 +5,12 @@ public class MeshPt {
 	int yy;
 	int isOut =0;
 	
-	public MeshPt(int x, int y, int meshSize, double[][] keyXs, double[][] keyYs){
-		int x1 = ((x-1)/meshSize)*meshSize;
-		int y1 = ((y-1)/meshSize)*meshSize;
+	public MeshPt(int x, int y, int x1, int y1, int meshSize, double[][] keyXs, double[][] keyYs){
 		int x2 = x1+meshSize;
 		int y2 = y1+meshSize;
-		if(x1 >= keyXs.length || x2 >= keyXs.length || y1 >= keyXs[0].length || y2 >= keyXs[0].length){
+
+		//System.out.println(x1+","+y1);
+		if(x1 >= keyXs.length || x2 >= keyXs.length || y1 >= keyXs[0].length || y2 >= keyXs[0].length || x1<0 || y1<0){
 			isOut = 1;
 		}
 		else{
