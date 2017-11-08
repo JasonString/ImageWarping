@@ -66,7 +66,7 @@ public class NewWarp {
 		Mat sourceG = new Mat(source.rows(),source.cols(),source.type());
 		Imgproc.cvtColor(source, sourceG, Imgproc.COLOR_RGB2GRAY);
 		
-		//dstÅÜ¶Â
+		//dstè®Šé»‘
 				for(int x=0;x<dst.cols();x++){
 					for(int y=0;y<dst.rows();y++){
 						double[] temp= {1,1,1};
@@ -124,13 +124,13 @@ public class NewWarp {
 		double[][] invShifts = new double[shifts.length][2];
 		for(int i=0; i<points.length; i++){
 			for(int j=0; j<points[0].length; j++){
-				shiftPoints[i][j]=points[i][j]+(int)shifts[i][j];//ºâ²¾°Ê«áªºÂI
-				invShifts[i][j]=-shifts[i][j];//ºâ¬Û¤Ïshifts
+				shiftPoints[i][j]=points[i][j]+(int)shifts[i][j];//ç®—ç§»å‹•å¾Œçš„é»
+				invShifts[i][j]=-shifts[i][j];//ç®—ç›¸åshifts
 			}
 		}
 				
 		
-		//­pºâ½uªº¦ì²¾
+		//è¨ˆç®—ç·šçš„ä½ç§»
 		int  pointsCnt = points.length;
 		double diagonal = Math.sqrt(rows1*rows1+cols1*cols1);
 		int linesR = lines.length;
@@ -148,7 +148,7 @@ public class NewWarp {
 			int yE = lines[i][3];
 			
 			double[] shift ={0,0};
-			//­pºâÂIªº¼vÅT¤OS
+			//è¨ˆç®—é»çš„å½±éŸ¿åŠ›S
 			for(int k=0; k<pointsCnt; k++){
 				dists[k] = Math.sqrt((xS-points[k][0])*(xS-points[k][0])+(yS-points[k][1])*(yS-points[k][1]));
 				effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
@@ -158,7 +158,7 @@ public class NewWarp {
 				}
 				newEffects[k] = effects[k];
 			}
-			//½Õ¾ãÅv­«
+			//èª¿æ•´æ¬Šé‡
 			int counter = 0;
 			int matchPoint = 0;
 			for(int k=0; k<dists.length; k++){
@@ -169,7 +169,7 @@ public class NewWarp {
 			}
 			if (counter == 0){
 				
-				double sum = 0; //Åv­«¥[Á`
+				double sum = 0; ///æ¬Šé‡åŠ ç¸½
 				for(int k=0; k<effects.length; k++){
 					sum = sum+effects[k];
 				}
@@ -212,7 +212,7 @@ public class NewWarp {
 			lineDists[i][1] = yS+(int)Math.round(shift[1]);
 
 			shift = new double[]{0,0};
-			//­pºâÂIªº¼vÅT¤OE
+			//è¨ˆç®—é»çš„å½±éŸ¿åŠ›E
 			for(int k=0; k<pointsCnt; k++){
 				dists[k] = Math.sqrt((xE-points[k][0])*(xE-points[k][0])+(yE-points[k][1])*(yE-points[k][1]));
 				effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
@@ -232,7 +232,7 @@ public class NewWarp {
 			}
 			if (counter == 0){
 				
-				double sum = 0; //Åv­«¥[Á`
+				double sum = 0; //æ¬Šé‡åŠ ç¸½
 				for(int k=0; k<effects.length; k++){
 					sum = sum+effects[k];
 				}
@@ -275,7 +275,7 @@ public class NewWarp {
 			lineDists[i][3] = yE+(int)Math.round(shift[1]);
 			
 		}
-		//­pºâ¨C¤@ÂIªº¨Ó·½
+		//è¨ˆç®—é»çš„ä¾†æº
 		
 		dists = new double[points.length];
 		effects = new double[points.length];
@@ -285,7 +285,7 @@ public class NewWarp {
 				//System.out.println(x+","+y);
 				OnLines pts = new OnLines(lineDists,x,y);
 				
-				if(pts.yesNo() == 1){ //¦b½u¤W
+				if(pts.yesNo() == 1){ //åœ¨ç·šä¸Š
 					int xS = lines[pts.lineNum()][0];
 					int yS = lines[pts.lineNum()][1];
 					int xE = lines[pts.lineNum()][2];
@@ -304,7 +304,7 @@ public class NewWarp {
 					CalNewPts newPt = new CalNewPts(inLineReg.getLineNumSet(),inLineReg.getLineS(),inLineReg.getLineE(),lineDists, lines, x, y);
 					
 					for(int i=0; i<newPt.newPtSetX.size(); i++){
-						if(newPt.newPtSetX.get(i) == newPt.newPtSetY.get(i) && (int)newPt.newPtSetX.get(i) == 0){ //²¾°£0
+						if(newPt.newPtSetX.get(i) == newPt.newPtSetY.get(i) && (int)newPt.newPtSetX.get(i) == 0){ //ç§»é™¤0
 							newPt.newPtSetX.remove(i);
 							newPt.newPtSetY.remove(i);
 							
@@ -314,19 +314,19 @@ public class NewWarp {
 						//if(x==8 && y ==106){System.out.println(i+","+(int)newPt.newPtSetX.get(i)+","+(int)newPt.newPtSetY.get(i));}
 					}
 					
-					//¦X¨Ö·sÂÂÂI
+					//åˆä½µæ–°èˆŠé»
 					int [][] newPoints;
 					double [][] newSifts;
-					if(newPt.newPtSetX.isEmpty() == false){//¦pªG¦³­È(¦³·sªºÂI)
+					if(newPt.newPtSetX.isEmpty() == false){///å¦‚æœæœ‰å€¼(æœ‰æ–°çš„é»)
 						
-						newPoints= new int[newPt.newPtSetX.size()+points.length][2];//°}¦Cªì©l¤Æ
+						newPoints= new int[newPt.newPtSetX.size()+points.length][2];//é™£åˆ—åˆå§‹åŒ–
 						newSifts= new double[(int)newPt.newSiftsX.size()+shifts.length][2];
 						
 						//System.out.println(newPt.newPtSetX.size()+points.length+","+newPt.newSiftsX.size()+shifts.length);
 						
-						System.arraycopy(shiftPoints, 0, newPoints, 0, shiftPoints.length); //¥ı½Æ»s­ì¥»ªº¯S¼xÂI
+						System.arraycopy(shiftPoints, 0, newPoints, 0, shiftPoints.length); //å…ˆè¤‡è£½åŸæœ¬çš„ç‰¹å¾µé»
 						System.arraycopy(invShifts, 0, newSifts, 0, invShifts.length);
-						for(int i=0; i<newPt.newPtSetX.size(); i++){//¦A©ñ·sªº¯S¼xÂI
+						for(int i=0; i<newPt.newPtSetX.size(); i++){//å†æ”¾æ–°çš„ç‰¹å¾µé»
 							int onetwo[] = {(int)newPt.newPtSetX.get(i) , (int)newPt.newPtSetY.get(i)};
 //							for(int u=0; u<onetwo.length; u++){
 //								System.out.println("u:"+u+",qq:"+onetwo[u]);
@@ -341,7 +341,7 @@ public class NewWarp {
 						newPoints = shiftPoints;
 						newSifts = invShifts;
 					}
-					//
+					//é–‹å§‹è¨ˆç®—ä¾†æºé»
 					int [][] newPoints2;
 					double [][] newSifts2;
 					newPoints2 = newPoints;
@@ -352,16 +352,8 @@ public class NewWarp {
 					double[] shift = new double[2];
 					for(int k=0; k<newPoints2.length; k++){
 						dists[k] = Math.sqrt((x-newPoints2[k][0])*(x-newPoints2[k][0])+(y-newPoints2[k][1])*(y-newPoints2[k][1]));
-						if(dists[k]<=3){
-							dists[k] = 0;
-						}
-						else if(dists[k]<=10){
-							//dists[k] = 1;
-						}
-						else if(dists[k]<=20){
-							//dists[k] = 3;
-						}
-						if(k> pointsCnt-1){//³oÃä­pºâ½u¤W¯S¼xÂIªº¥[Åv
+
+						if(k> pointsCnt-1){//å¢åŠ ç·šä¸Šç‰¹å¾µé»çš„æ¬Šé‡ï¼ˆæ¸›å°‘éç·šä¸Šç‰¹å¾µé»çš„æ¬Šé‡ï¼‰
 							effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
 						}
 						else{
@@ -373,7 +365,7 @@ public class NewWarp {
 							effects[k] = 0;
 						}
 						//System.out.println(newPoints2.length+","+pointsCnt);
-						if(k> pointsCnt-1){//³oÃä­pºâ½u¤W¯S¼xÂIªº¥[Åv
+						if(k> pointsCnt-1){//ï¿½oï¿½ï¿½pï¿½ï¿½uï¿½Wï¿½Sï¿½xï¿½Iï¿½ï¿½ï¿½[ï¿½v
 							
 						}
 						newEffects[k] = effects[k];
@@ -391,9 +383,9 @@ public class NewWarp {
 						}
 					}
 					
-					if (counter == 0){ //¦pªG¤£¬O¯S¼xÂI
+					if (counter == 0){ //å¦‚æœä¸æ˜¯ç‰¹å¾µé»
 //
-						double sum = 0; //Åv­«¥[Á`
+						double sum = 0; //æ¬Šé‡åŠ ç¸½
 						for(int k=0; k<effects.length; k++){
 							sum = sum+effects[k];
 						}
