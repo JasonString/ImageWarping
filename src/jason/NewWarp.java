@@ -549,7 +549,7 @@ public class NewWarp {
 					double[] shift = new double[2];
 					for(int k=0; k<newPoints2.length; k++){
 						dists[k] = Math.sqrt((x-newPoints2[k][0])*(x-newPoints2[k][0])+(y-newPoints2[k][1])*(y-newPoints2[k][1]));
-						if(k>pointsCnt+1){
+						if(k>pointsCnt-1){
 							effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
 						}
 						else{
