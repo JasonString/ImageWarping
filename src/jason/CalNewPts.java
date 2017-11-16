@@ -48,11 +48,18 @@ public class CalNewPts {
 				newSiftsX.add( (int) Math.round(nLinePt.getX())-newPtX );
 				newSiftsY.add( (int) Math.round(nLinePt.getY())-newPtY );
 				*/
+				
 				newPtSetX.add( newPtX );
 				newPtSetY.add( newPtY );
 				newSiftsX.add( (int) Math.round(nLinePt.getX())-newPtX );
 				newSiftsY.add( (int) Math.round(nLinePt.getY())-newPtY );
-				
+				/*
+				if(x>=200 && x<=450 && y ==56 ){/////////////////////////////////////////////////
+					System.out.println("("+x+","+y+")"+"newPtSetX:"+newPtSetX+" ,newPtSetY:"+newPtSetY+" ,newSiftsX:"+newSiftsX+" ,newSiftsY:"+newSiftsY);
+					System.out.println("("+xS+","+ yS+"),("+ xE+","+ yE+")");
+					System.out.println("("+dxS+","+ dyS+"),("+ dxE+","+ dyE+")");
+				}
+				*/
 			}
 			if(lineSS[i] == 1){
 				newPtSetX.add( dxS );

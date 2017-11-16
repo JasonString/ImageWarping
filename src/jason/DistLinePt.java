@@ -9,11 +9,11 @@ public class DistLinePt {
 	double qY;
 	
 	public DistLinePt(int xS, int yS, int xE, int yE, int pX, int pY, int dxS, int dyS, int dxE, int dyE){
-		if(xE-xS == 0){
+		if(Math.abs(xE-xS) <= 3){
 			a = (double)(pY-yS)/(yE-yS);
 			b = (double)(pY-yS)/(yE-yS);
 		}
-		else if(yE-yS == 0){
+		else if(Math.abs(yE-yS) <= 3){
 			b = (double)(pX-xS)/(xE-xS);
 			a = (double)(pX-xS)/(xE-xS);
 		}
@@ -28,7 +28,11 @@ public class DistLinePt {
 		qX = dxS + a*(dxE-dxS);
 		qY = dyS + b*(dyE-dyS);
 		//System.out.println("X:"+pX+","+"Y:"+pY+"qX:"+(int)Math.round(qX)+","+"qY:"+(int)Math.round(qY));
-		
+		/*
+		if(xS ==119 && yS==61 && pX==217 && pY==60){
+			System.out.println(a+","+b);
+		}
+		*/
 	}
 	
 	public double getX(){

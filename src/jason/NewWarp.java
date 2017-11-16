@@ -61,7 +61,7 @@ public class NewWarp {
 		System.out.println((timeE-timeS));
 	}
 	private void process(){
-		Mat source = Imgcodecs.imread("src/jason/cactus.jpg");
+		Mat source = Imgcodecs.imread("src/jason/poker.jpg");
 		dst = new Mat(source.rows(),source.cols(),source.type());
 		Mat sourceG = new Mat(source.rows(),source.cols(),source.type());
 		Imgproc.cvtColor(source, sourceG, Imgproc.COLOR_RGB2GRAY);
@@ -78,12 +78,11 @@ public class NewWarp {
 		int cols1 = source.cols();
 
 		int[][] points= {
-				/*
-				{62,38},
-				{126,29},
-				{83,81},
-				{124,114}
-				*/
+				{213,112},
+				{32,621},
+				{466,708},
+				{522,152},
+				/*cactus
 				{196,247},
 				{108,307},
 				{286,333},
@@ -93,8 +92,14 @@ public class NewWarp {
 				{145,270},
 				{302,264},
 				{628,312},
+				*/
 		};
 		double[][] shifts= {
+				{-119,-48},
+				{44,90},
+				{50,14},
+				{-3,-92},
+				/*cactus
 				{1,-33},
 				{-30,-3},
 				{40,3},
@@ -104,19 +109,17 @@ public class NewWarp {
 				{-25,-25},
 				{-10,-38},
 				{1,-35},
-				/*
-				{19,-15},
-				{-35,30},
-				{18,25},
+				
 				*/
 		};
 		int[][] lines={
-				/*
-				{0,71, 155, 69},
-				{97, 0, 102, 149 },
-				{28, 0, 24, 148},
-				*/
+				{155	,327	,492	,382},
+				{366	,144	,244	,650},
+				{228	,117	,514	,153}
+				/*cactus
 				{315,270,489,78}
+				*/
+				
 				
 		};
 		
@@ -285,7 +288,7 @@ public class NewWarp {
 				//System.out.println(x+","+y);
 				OnLines pts = new OnLines(lineDists,x,y);
 				
-				if(pts.yesNo() == 1){ //在線上
+				if(pts.yesNo() == 1000){ //在線上///////
 					int xS = lines[pts.lineNum()][0];
 					int yS = lines[pts.lineNum()][1];
 					int xE = lines[pts.lineNum()][2];
@@ -350,9 +353,10 @@ public class NewWarp {
 					effects = new double[newPoints2.length];
 					newEffects = new double[newPoints2.length];
 					double[] shift = new double[2];
+
 					for(int k=0; k<newPoints2.length; k++){
 						dists[k] = Math.sqrt((x-newPoints2[k][0])*(x-newPoints2[k][0])+(y-newPoints2[k][1])*(y-newPoints2[k][1]));
-
+						
 						if(k> pointsCnt-1){//增加線上特徵點的權重（減少非線上特徵點的權重）
 							effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
 						}
@@ -368,10 +372,8 @@ public class NewWarp {
 						if(k> pointsCnt-1){//�o��p��u�W�S�x�I���[�v
 							
 						}
-						newEffects[k] = effects[k];
-						if(x==8 && y ==106){
-							System.out.println(k+","+effects[k]+","+dists[k]+","+newPoints2[k][0]+","+newPoints2[k][1]);/////////////////////
-						}
+						//newEffects[k] = effects[k];////////////////////這個好像不用
+
 					}
 //
 					int counter = 0;
@@ -391,6 +393,7 @@ public class NewWarp {
 						}
 						double power = 1;
 						while(Math.abs(sum-1)>0.1){
+							//if(x>=401 && x<=402 && y >=56 && y <=56 ){System.out.println("sum:"+sum);}//////////////////////////////
 							if(sum == 0){
 								break;
 							}
@@ -422,11 +425,11 @@ public class NewWarp {
 						
 						
 						for(int k=0; k<newEffects.length; k++){
-							if(x==8 && y ==106){
-								System.out.println(k+","+newEffects[k]);/////////////////////
-							}
+
 							shift[0] = shift[0]+newEffects[k]*newSifts2[k][0];
 							shift[1] = shift[1]+newEffects[k]*newSifts2[k][1];
+
+
 						}
 						
 					}
