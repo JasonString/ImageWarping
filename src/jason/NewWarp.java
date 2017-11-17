@@ -248,10 +248,12 @@ public class NewWarp {
 				{485,705},
 				{502,121},
 				*/
+				/*poker
 				{213,112},
 				{32,621},
 				{466,708},
-				{522,152},
+				{522,152}
+				*/
 				
 		};
 		
@@ -272,10 +274,12 @@ public class NewWarp {
 				{76,52},
 				{44,-69},
 				*/
+				/*
 				{-119,-48},
 				{44,90},
 				{50,14},
 				{-3,-92},
+				*/
 		};
 		
 		for(int i=0; i<shifts0.length; i++){
@@ -573,17 +577,20 @@ public class NewWarp {
 					}
 					
 					//if (counter == 0){ //如果不是特徵點（特徵點直接移動） //現在不看特徵點
+						/*
 						if(x==80 && y==280){/////////////////////////////
 							//System.out.println(x+","+y+",");
 						}
+						*/
 						double sum = 0; //權重加總
 						for(int k=0; k<effects.length; k++){
 							sum = sum+effects[k];
 						}
-						if(x>=80 && x<=141 && y>=280 && y<=321){/////////////////////////////
+						/*
+						if(x>=80 && x<=141 && y>=280 && y<=321){
 							System.out.println(x+","+y+","+ sum);
 						}
-						
+						*/
 						double power = 1;
 						while(Math.abs(sum-1)>0.1){
 							if(sum == 0){
@@ -635,11 +642,13 @@ public class NewWarp {
 					//System.out.println(x+","+y+","+keyXs[x][y]+","+keyYs[x][y]);
 					if(keyYs[x][y]>=0 && keyXs[x][y] >=0 && keyXs[x][y]<cols1 && keyYs[x][y] <rows1){
 						dst.put(y, x, source.get( keyYs[x][y] , keyXs[x][y] ) );///////////////////////////////////////////注意
+					}
 						//System.out.println(x+","+y+","+keyXs[x][y]+","+keyYs[x][y]);
+					/*
+					if(x>=80 && x<=141 && y>=280 && y<=321){
+						System.out.println("-"+x+","+y+","+keyXs[x][y]+","+keyYs[x][y]);
 					}
-					if(x>=80 && x<=141 && y>=280 && y<=321){/////////////////////////////
-						//System.out.println("-"+x+","+y+","+keyXs[x][y]+","+keyYs[x][y]);
-					}
+					*/
 					
 				}
 				
@@ -654,8 +663,18 @@ public class NewWarp {
 						
 						int x1 = ((x-1)/meshSize)*meshSize;
 						int y1 = ((y-1)/meshSize)*meshSize;
+						//無用九宮格==============================================================================
 						
+						MeshPt center =  new MeshPt(x, y, x1,          y1         , meshSize, keyXs2, keyYs2);
 						
+						if(center.isOut==1){//邊緣無端點
+							continue;
+						}
+						int xx =center.xx;
+						int yy =center.yy;
+						//========================================================================================
+						//使用九宮格===============================================================================
+						/*
 						MeshPt topL =    new MeshPt(x, y, x1-meshSize, y1-meshSize, meshSize, keyXs2, keyYs2);
 						MeshPt topC =    new MeshPt(x, y, x1,          y1-meshSize, meshSize, keyXs2, keyYs2);
 						MeshPt topR =    new MeshPt(x, y, x1+meshSize, y1-meshSize, meshSize, keyXs2, keyYs2);
@@ -665,33 +684,37 @@ public class NewWarp {
 						MeshPt botL =    new MeshPt(x, y, x1-meshSize, y1+meshSize, meshSize, keyXs2, keyYs2);
 						MeshPt botC =    new MeshPt(x, y, x1,          y1+meshSize, meshSize, keyXs2, keyYs2);
 						MeshPt botR =    new MeshPt(x, y, x1+meshSize, y1+meshSize, meshSize, keyXs2, keyYs2);
-						if(center.isOut==1){//邊緣無端點
+						if(topL.isOut == 1 || topC.isOut == 1 || topR.isOut == 1 || centerL.isOut == 1 || center.isOut == 1 || centerR.isOut == 1 || botL.isOut == 1 || botC.isOut == 1 || botR.isOut == 1 ){//邊緣無端點
 							continue;
 						}
-						int xx = (topL.xx*1+
+						int xx =(topL.xx*1+
 								topC.xx*2+
 								topR.xx*1+
 								centerL.xx*2+
-								center.xx*9+
+								center.xx*4+
 								centerR.xx*2+
 								botL.xx*1+
 								botC.xx*2+
-								botR.xx*1)/21;
-						int yy = (topL.yy*1+
+								botR.xx*1)/16;
+						int yy =(topL.yy*1+
 								topC.yy*2+
 								topR.yy*1+
 								centerL.yy*2+
-								center.yy*9+
+								center.yy*4+
 								centerR.yy*2+
 								botL.yy*1+
 								botC.yy*2+
-								botR.yy*1)/21;
-						if(x>=80 && x<=141 && y>=280 && y<=321){/////////////////////////////
+								botR.yy*1)/16;
+						*/
+						//==========================================================================================
+						/*
+						if(x>=80 && x<=141 && y>=280 && y<=321){
 							//System.out.println("+"+x+","+y+","+xx+","+yy);
 						}					
-					/*	if(x > 30 && x <36 && y>70 && y<76){
+						if(x > 30 && x <36 && y>70 && y<76){
 							System.out.println(x+","+y+","+a1+","+b1+","+a2+","+b2+","+a3+","+b3+","+a4+","+b4);
-						}*/
+						}
+						*/
 						if(xx>0 && yy >0 && xx<cols1 && yy<rows1){
 							dst.put(y, x, source.get( yy , xx ) );//////////////////////////////////注意
 						}
