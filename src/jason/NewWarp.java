@@ -70,8 +70,8 @@ public class NewWarp {
 		
 	
 		
-		imageUri = "src//jason//poker.jpg";
-		source = Imgcodecs.imread(imageUri);//src//jason//cactus.jpg
+		imageUri = "src//jason//jproom2.jpg";
+		source = Imgcodecs.imread(imageUri);//src//jason//boardgame.jpg
 		playSource = new Mat(source.rows(),source.cols(),source.type());
 		for(int x=0;x<source.cols();x++){//先接下source
 			for(int y=0;y<source.rows();y++){
@@ -248,7 +248,8 @@ public class NewWarp {
 				{485,705},
 				{502,121},
 				*/
-				/*poker
+				//poker
+				/*
 				{213,112},
 				{32,621},
 				{466,708},
@@ -274,8 +275,9 @@ public class NewWarp {
 				{76,52},
 				{44,-69},
 				*/
+				//
 				/*
-				{-119,-48},
+				{-119,-50},
 				{44,90},
 				{50,14},
 				{-3,-92},
