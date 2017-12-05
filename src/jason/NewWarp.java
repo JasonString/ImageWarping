@@ -21,6 +21,13 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JButton;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NewWarp {
 	static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME);}
@@ -28,8 +35,16 @@ public class NewWarp {
 	private JFrame frame;
 	private BufferedImage image;
 	private BufferedImage image2;
+	private Mat source;
 	private Mat dst;
+	private Mat playSource;
+	private String imageUri;
 	private Path imagePath;
+	private double totalT, timeS, timeE;;
+	private int ptOrSft = 0;
+	private ArrayList<int[]> points = new ArrayList<int[]>();
+	private ArrayList<double[]> shifts = new ArrayList<double[]>();
+	private int temp[] = new int[2]; 
 	/**
 	 * Launch the application.
 	 */
@@ -50,34 +65,160 @@ public class NewWarp {
 	 * Create the application.
 	 */
 	public NewWarp() {
-		long timeS, timeE;
-		timeS = System.currentTimeMillis();
 		
-		process();
-		
-		timeE = System.currentTimeMillis();
-		
-		initialize(image, image2, dst);
-		System.out.println((timeE-timeS));
-	}
-	private void process(){
-		Mat source = Imgcodecs.imread("src/jason/poker.jpg");
+		//讀檔
+		imageUri = "src/jason/poker.jpg";
+		source = Imgcodecs.imread(imageUri);
+		//顯示Source先接下source
+		playSource = new Mat(source.rows(),source.cols(),source.type());
+		for(int x=0;x<source.cols();x++){
+			for(int y=0;y<source.rows();y++){
+				playSource.put(y, x, source.get(y, x));
+			}
+		}
 		dst = new Mat(source.rows(),source.cols(),source.type());
+		image = matToBufferedImage(playSource);
+		image2 = matToBufferedImage(dst);
+		//GUI處理
+		initialize();
+		
+	}
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		
+		
+		frame = new JFrame();
+		frame.setBounds(100, 100, 150+image.getWidth()+image.getWidth(), 150+image.getHeight());
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("");
+		lblNewLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) { //點擊新增點
+				int addpt[]={e.getX(),e.getY()};
+				double addsft[] = new double[2];
+				if(ptOrSft == 0){
+					for(int i=0; i<2; i++){
+						temp[i]= addpt[i];
+					}
+					points.add(addpt);
+					ptOrSft =1;
+					System.out.println("{"+e.getX()+","+e.getY()+"}>");
+				}
+				else{
+					for(int i=0; i<2; i++){
+						addsft[i]=addpt[i]-temp[i];
+					}
+					shifts.add(addsft);
+					ptOrSft =0;
+					System.out.println("{"+e.getX()+","+e.getY()+"}");
+					System.out.println("S{"+(int)addsft[0]+","+(int)addsft[1]+"}");
+				}
+				
+				//畫點//這裡每加上一個點，就重新畫一次
+				
+				for(int p=0;p<points.size();p++){
+					if(ptOrSft == 1){
+						Point pt1 = new Point(points.get(p)[0],points.get(p)[1]);
+						Imgproc.line(playSource, pt1, pt1, new Scalar(25,55,220),5);
+					}
+					else{
+						Point pt2 = new Point(points.get(p)[0]+shifts.get(p)[0],points.get(p)[1]+shifts.get(p)[1]);
+						Imgproc.line(playSource, pt2, pt2, new Scalar(255,55,220),5);
+					}	
+				}
+				image = matToBufferedImage(playSource);
+				lblNewLabel.setIcon( new ImageIcon(image));
+
+			}
+		});
+		lblNewLabel.setBounds(50, 60, image.getWidth(), image.getHeight());
+		lblNewLabel.setIcon(new ImageIcon(image));
+		frame.getContentPane().add(lblNewLabel);
+		
+		JLabel lblNewLabel_1 = new JLabel("");
+		lblNewLabel_1.setBounds(image.getWidth()+100, 60, image.getWidth(), image.getHeight());
+		lblNewLabel_1.setIcon(new ImageIcon(image2));
+		frame.getContentPane().add(lblNewLabel_1);
+		
+		JButton btnRun = new JButton("Run");
+		btnRun.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {//計算並計時
+				timeS = System.currentTimeMillis();
+				process();
+				timeE = System.currentTimeMillis();
+				totalT = (timeE-timeS)/1000;
+				System.out.println(totalT+"s");
+				
+				lblNewLabel.setIcon(new ImageIcon(image));
+				lblNewLabel_1.setIcon(new ImageIcon(image2));
+			}
+		});
+		btnRun.setBounds(10, 10, 90, 20);
+		frame.getContentPane().add(btnRun);
+		
+		JMenuBar menuBar = new JMenuBar();
+		frame.setJMenuBar(menuBar);
+		
+		JMenu mnNewMenu = new JMenu("File");
+		menuBar.add(mnNewMenu);
+		
+		JMenuItem mntmSave = new JMenuItem("Save");
+		mntmSave.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				MatOfInt JpgCompressionRate = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, 100);
+				Imgcodecs.imwrite("src//jason//xmanWarp.jpg", dst, JpgCompressionRate);
+				Imgcodecs.imwrite(imageUri.substring(0, imageUri.length()-4)+"Warp"+"["+totalT+"s]"+".jpg", dst, JpgCompressionRate);
+				System.out.println("save successfully");
+			}
+		});
+		
+		JMenuItem mntmOpenImage = new JMenuItem("Open Image");
+		JFileChooser imageurl = new JFileChooser();
+		mntmOpenImage.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				imageurl.setCurrentDirectory(new java.io.File("src/jason"));
+				imageurl.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				if(imageurl.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
+					 imagePath = imageurl.getSelectedFile().toPath();
+					 System.out.println(imagePath.getParent().toString());
+					 imageUri =imagePath.toUri().toString().substring(8);
+				}
+				
+				process();
+				lblNewLabel.setIcon(new ImageIcon(image));
+				lblNewLabel_1.setIcon(new ImageIcon(image2));
+			}
+		});
+		mnNewMenu.add(mntmOpenImage);
+		mnNewMenu.add(mntmSave);
+	}
+	/*
+	 * 主程式
+	 */
+	
+	private void process(){
 		Mat sourceG = new Mat(source.rows(),source.cols(),source.type());
 		Imgproc.cvtColor(source, sourceG, Imgproc.COLOR_RGB2GRAY);
 		
 		//dst變黑
-				for(int x=0;x<dst.cols();x++){
-					for(int y=0;y<dst.rows();y++){
-						double[] temp= {1,1,1};
-						dst.put(y, x, temp);
-					}
-				}
+		for(int x=0;x<dst.cols();x++){
+			for(int y=0;y<dst.rows();y++){
+				double[] temp= {1,1,1};
+				dst.put(y, x, temp);
+			}
+		}
 				
 		int rows1 = source.rows();
 		int cols1 = source.cols();
 
-		int[][] points= {
+		int[][] points0= {
 				{213,112},
 				{32,621},
 				{466,708},
@@ -94,7 +235,10 @@ public class NewWarp {
 				{628,312},
 				*/
 		};
-		double[][] shifts= {
+		for(int i=0; i<points0.length; i++){
+			points.add(points0[i]);
+		}
+		double[][] shifts0= {
 				{-119,-48},
 				{44,90},
 				{50,14},
@@ -112,48 +256,75 @@ public class NewWarp {
 				
 				*/
 		};
-		int[][] lines={
+		for(int i=0; i<points0.length; i++){
+			shifts.add(shifts0[i]);
+		}
+		//讀線
+		String line = "";
+        String cvsSplitBy = ",";
+        ArrayList<String[]> dataList = new ArrayList<String[]>(); //線string
+        try(BufferedReader br = new BufferedReader(new FileReader("src//jason//lineoutput.csv"))) {
+			while ((line = br.readLine()) != null) {
+                dataList.add(line.split(cvsSplitBy));
+            }
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+        /*
+		int[][] lines0={
 				{155	,327	,492	,382},
 				{366	,144	,244	,650},
 				{228	,117	,514	,153}
-				/*cactus
+				cactus
 				{315,270,489,78}
-				*/
-				
-				
+								
 		};
+		*/
+        //string 轉 int
+        int[][] lines0 = new int[dataList.size()][4];
+        for(int i=0; i<dataList.size(); i++){
+			for(int j=0; j<4; j++){
+				lines0[i][j]=Integer.parseInt(dataList.get(i)[j]);
+			}
+		}
+		//int[][] 轉 arrayList
+		ArrayList<int[]> lines = new ArrayList<int[]>();
+		for(int i=0; i<lines0.length; i++){
+				lines.add(lines0[i]);
+		}
+
 		
-		int[][] shiftPoints = new int[points.length][2];
-		double[][] invShifts = new double[shifts.length][2];
-		for(int i=0; i<points.length; i++){
-			for(int j=0; j<points[0].length; j++){
-				shiftPoints[i][j]=points[i][j]+(int)shifts[i][j];//算移動後的點
-				invShifts[i][j]=-shifts[i][j];//算相反shifts
+		int[][] shiftPoints = new int[points.size()][2];
+		double[][] invShifts = new double[shifts.size()][2];
+		for(int i=0; i<points.size(); i++){
+			for(int j=0; j<2; j++){
+				shiftPoints[i][j]=points.get(i)[j]+(int)shifts.get(i)[j];//算移動後的點
+				invShifts[i][j]=-shifts.get(i)[j];//算相反shifts
 			}
 		}
 				
 		
 		//計算線的位移
-		int  pointsCnt = points.length;
+		int  pointsCnt = points.size();
 		double diagonal = Math.sqrt(rows1*rows1+cols1*cols1);
-		int linesR = lines.length;
-		int linesC = lines[0].length;
+		int linesR = lines.size();
+		int linesC = 4;
 		
-		double[] dists = new double[points.length];
-		double[] effects = new double[points.length];
-		double[] newEffects = new double[points.length];
+		double[] dists = new double[points.size()];
+		double[] effects = new double[points.size()];
+		double[] newEffects = new double[points.size()];
 		int[][] lineDists = new int[linesR][linesC];
 		
 		for(int i=0; i<linesR; i++){
-			int xS = lines[i][0];
-			int yS = lines[i][1];
-			int xE = lines[i][2];
-			int yE = lines[i][3];
+			int xS = lines.get(i)[0]; 
+			int yS = lines.get(i)[1];
+			int xE = lines.get(i)[2];
+			int yE = lines.get(i)[3];
 			
 			double[] shift ={0,0};
 			//計算點的影響力S
 			for(int k=0; k<pointsCnt; k++){
-				dists[k] = Math.sqrt((xS-points[k][0])*(xS-points[k][0])+(yS-points[k][1])*(yS-points[k][1]));
+				dists[k] = Math.sqrt((xS-points.get(k)[0])*(xS-points.get(k)[0])+(yS-points.get(k)[1])*(yS-points.get(k)[1]));
 				effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
 				//System.out.println(i+","+effects[k]);
 				if(effects[k]<0.1){
@@ -202,13 +373,13 @@ public class NewWarp {
 					}
 				}
 				for(int k=0; k<newEffects.length; k++){
-					shift[0] = shift[0]+newEffects[k]*shifts[k][0];
-					shift[1] = shift[1]+newEffects[k]*shifts[k][1];
+					shift[0] = shift[0]+newEffects[k]*shifts.get(k)[0];
+					shift[1] = shift[1]+newEffects[k]*shifts.get(k)[1];
 				}
 				
 			}
 			else{
-				shift = shifts[matchPoint];
+				shift = shifts.get(matchPoint);
 			}
 			
 			lineDists[i][0] = xS+(int)Math.round(shift[0]);
@@ -217,7 +388,7 @@ public class NewWarp {
 			shift = new double[]{0,0};
 			//計算點的影響力E
 			for(int k=0; k<pointsCnt; k++){
-				dists[k] = Math.sqrt((xE-points[k][0])*(xE-points[k][0])+(yE-points[k][1])*(yE-points[k][1]));
+				dists[k] = Math.sqrt((xE-points.get(k)[0])*(xE-points.get(k)[0])+(yE-points.get(k)[1])*(yE-points.get(k)[1]));
 				effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
 
 				if(effects[k]<0.1){
@@ -265,13 +436,13 @@ public class NewWarp {
 					}
 				}
 				for(int k=0; k<newEffects.length; k++){
-					shift[0] = shift[0]+newEffects[k]*shifts[k][0];
-					shift[1] = shift[1]+newEffects[k]*shifts[k][1];
+					shift[0] = shift[0]+newEffects[k]*shifts.get(k)[0];
+					shift[1] = shift[1]+newEffects[k]*shifts.get(k)[1];
 				}
 				
 			}
 			else{
-				shift = shifts[matchPoint];
+				shift = shifts.get(matchPoint);
 			}
 			
 			lineDists[i][2] = xE+(int)Math.round(shift[0]);
@@ -280,19 +451,19 @@ public class NewWarp {
 		}
 		//計算點的來源
 		
-		dists = new double[points.length];
-		effects = new double[points.length];
-		newEffects = new double[points.length];
+		dists = new double[points.size()];
+		effects = new double[points.size()];
+		newEffects = new double[points.size()];
 		for(int x=0; x<cols1; x++){
 			for(int y=0; y<rows1; y++){
 				//System.out.println(x+","+y);
 				OnLines pts = new OnLines(lineDists,x,y);
 				
 				if(pts.yesNo() == 1000){ //在線上///////
-					int xS = lines[pts.lineNum()][0];
-					int yS = lines[pts.lineNum()][1];
-					int xE = lines[pts.lineNum()][2];
-					int yE = lines[pts.lineNum()][3];
+					int xS = lines.get(pts.lineNum())[0];
+					int yS = lines.get(pts.lineNum())[1];
+					int xE = lines.get(pts.lineNum())[2];
+					int yE = lines.get(pts.lineNum())[3];
 					
 					int dxS = lineDists[pts.lineNum()][0];
 					int dyS = lineDists[pts.lineNum()][1];
@@ -322,8 +493,8 @@ public class NewWarp {
 					double [][] newSifts;
 					if(newPt.newPtSetX.isEmpty() == false){///如果有值(有新的點)
 						
-						newPoints= new int[newPt.newPtSetX.size()+points.length][2];//陣列初始化
-						newSifts= new double[(int)newPt.newSiftsX.size()+shifts.length][2];
+						newPoints= new int[newPt.newPtSetX.size()+points.size()][2];//陣列初始化
+						newSifts= new double[(int)newPt.newSiftsX.size()+shifts.size()][2];
 						
 						//System.out.println(newPt.newPtSetX.size()+points.length+","+newPt.newSiftsX.size()+shifts.length);
 						
@@ -446,72 +617,20 @@ public class NewWarp {
 			}
 		}
 		for(int p=0; p<pointsCnt; p++){
-			Point pt1 = new Point(points[p][0],points[p][1]);
+			Point pt1 = new Point(points.get(p)[0],points.get(p)[1]);
 			Imgproc.line(source, pt1, pt1, new Scalar(25,55,220),5);
-			Point pt2 = new Point(points[p][0]+shifts[p][0],points[p][1]+shifts[p][1]);
+			Point pt2 = new Point(points.get(p)[0]+shifts.get(p)[0],points.get(p)[1]+shifts.get(p)[1]);
 			Imgproc.line(source, pt2, pt2, new Scalar(255,55,220),5);
 		}
 		for(int p=0;p<linesR;p++){
-			Point pt1= new Point(lines[p][0],lines[p][1]);
-			Point pt2= new Point(lines[p][2],lines[p][3]);
+			Point pt1= new Point(lines.get(p)[0],lines.get(p)[1]);
+			Point pt2= new Point(lines.get(p)[2],lines.get(p)[3]);
 			Imgproc.line(source, pt1, pt2, new Scalar(225,0,0),1);
 		}
 		image = matToBufferedImage(source);
 		image2 = matToBufferedImage(dst);
 	}
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void initialize(BufferedImage image, BufferedImage image2, Mat dst) {
-		
-		
-		frame = new JFrame();
-		frame.setBounds(0, 0, 150+image.getWidth()+image2.getWidth(), 150+image2.getHeight());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
-		
-		JLabel lblNewLabel = new JLabel("");
-		lblNewLabel.setBounds(50, 50, image.getWidth(), image.getHeight());
-		lblNewLabel.setIcon(new ImageIcon(image));
-		frame.getContentPane().add(lblNewLabel);
-		
-		JLabel lblNewLabel_1 = new JLabel("");
-		lblNewLabel_1.setBounds(image.getWidth()+100, 50, image2.getWidth(), image2.getHeight());
-		lblNewLabel_1.setIcon(new ImageIcon(image2));
-		frame.getContentPane().add(lblNewLabel_1);
-		
-		JMenuBar menuBar = new JMenuBar();
-		frame.setJMenuBar(menuBar);
-		
-		JMenu mnNewMenu = new JMenu("File");
-		menuBar.add(mnNewMenu);
-		
-		JMenuItem mntmSave = new JMenuItem("Save");
-		mntmSave.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				MatOfInt JpgCompressionRate = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, 100);
-				Imgcodecs.imwrite("src//jason//xmanWarp.jpg", dst, JpgCompressionRate);
-				System.out.println("save successfully");
-			}
-		});
-		
-		JMenuItem mntmOpenImage = new JMenuItem("Open Image");
-		JFileChooser imageurl = new JFileChooser();
-		mntmOpenImage.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				imageurl.setCurrentDirectory(new java.io.File("src/jason"));
-				imageurl.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				if(imageurl.showOpenDialog(null) == JFileChooser.APPROVE_OPTION){
-					 imagePath = imageurl.getSelectedFile().toPath();
-					 System.out.println(imagePath.getParent().toString());
-				}
-			}
-		});
-		mnNewMenu.add(mntmOpenImage);
-		mnNewMenu.add(mntmSave);
-	}
+
 	//copy
 	public BufferedImage matToBufferedImage(Mat matrix) {
 		int cols = matrix.cols();
