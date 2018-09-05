@@ -13,6 +13,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.core.MatOfInt;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -28,6 +29,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JTextField;
 
 public class NewWarp {
 	static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME);}
@@ -36,15 +38,19 @@ public class NewWarp {
 	private BufferedImage image;
 	private BufferedImage image2;
 	private Mat source;
+	private Mat bigSource;
+	private double product;
 	private Mat dst;
 	private Mat playSource;
 	private String imageUri;
+	private String imageName;
 	private Path imagePath;
 	private double totalT, timeS, timeE;;
 	private int ptOrSft = 0;
 	private ArrayList<int[]> points = new ArrayList<int[]>();
 	private ArrayList<double[]> shifts = new ArrayList<double[]>();
 	private int temp[] = new int[2]; 
+	private JTextField txtNote;
 	/**
 	 * Launch the application.
 	 */
@@ -67,8 +73,15 @@ public class NewWarp {
 	public NewWarp() {
 		
 		//讀檔
-		imageUri = "src/jason/poker.jpg";
+		imageName = "dajiahao";
+		imageUri = "src/jason/"+imageName+".jpg";
 		source = Imgcodecs.imread(imageUri);
+		
+		//原照片增倍,在做取樣
+		product = 1;
+		bigSource = new Mat((int)(source.rows()*product),(int)(source.cols()*product),source.type());
+		Imgproc.resize(source, bigSource, bigSource.size(), (source.size().width)*product, (source.size().height)*product, 1);
+		
 		//顯示Source先接下source
 		playSource = new Mat(source.rows(),source.cols(),source.type());
 		for(int x=0;x<source.cols();x++){
@@ -79,6 +92,7 @@ public class NewWarp {
 		dst = new Mat(source.rows(),source.cols(),source.type());
 		image = matToBufferedImage(playSource);
 		image2 = matToBufferedImage(dst);
+		
 		//GUI處理
 		initialize();
 		
@@ -90,7 +104,7 @@ public class NewWarp {
 		
 		
 		frame = new JFrame();
-		frame.setBounds(100, 100, 150+image.getWidth()+image.getWidth(), 150+image.getHeight());
+		frame.setBounds(100, 100, Math.max(150+image.getWidth()+image.getWidth(), 450), Math.max(150+image.getHeight(), 450));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -148,6 +162,7 @@ public class NewWarp {
 		btnRun.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {//計算並計時
+				System.out.println("開始執行");
 				timeS = System.currentTimeMillis();
 				process();
 				timeE = System.currentTimeMillis();
@@ -158,9 +173,27 @@ public class NewWarp {
 				lblNewLabel_1.setIcon(new ImageIcon(image2));
 			}
 		});
-		btnRun.setBounds(10, 10, 90, 20);
+		btnRun.setBounds(50, 10, 90, 20);
 		frame.getContentPane().add(btnRun);
 		
+		txtNote = new JTextField();
+		txtNote.setText("note");
+		txtNote.setBounds(image.getWidth()*2+100-96, 10, 96, 20);
+		frame.getContentPane().add(txtNote);
+		txtNote.setColumns(10);
+		/*
+		JButton btnResizing = new JButton("Resizing x2");
+		btnResizing.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				
+				ResizingWindow rw = new ResizingWindow(image);
+				rw.NewScreen(image);
+			}
+		});
+		btnResizing.setBounds(160, 10, 90, 20);
+		frame.getContentPane().add(btnResizing);
+		*/
 		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
 		
@@ -172,7 +205,7 @@ public class NewWarp {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				MatOfInt JpgCompressionRate = new MatOfInt(Imgcodecs.IMWRITE_JPEG_QUALITY, 100);
-				Imgcodecs.imwrite("src//jason//xmanWarp.jpg", dst, JpgCompressionRate);
+				//Imgcodecs.imwrite("src//jason//xmanWarp.jpg", dst, JpgCompressionRate);
 				Imgcodecs.imwrite(imageUri.substring(0, imageUri.length()-4)+"Warp"+"["+totalT+"s]"+".jpg", dst, JpgCompressionRate);
 				System.out.println("save successfully");
 			}
@@ -202,12 +235,11 @@ public class NewWarp {
 	/*
 	 * 主程式
 	 */
-	
 	private void process(){
 		Mat sourceG = new Mat(source.rows(),source.cols(),source.type());
 		Imgproc.cvtColor(source, sourceG, Imgproc.COLOR_RGB2GRAY);
 		
-		//dst變黑
+		//dst黑底
 		for(int x=0;x<dst.cols();x++){
 			for(int y=0;y<dst.rows();y++){
 				double[] temp= {1,1,1};
@@ -219,41 +251,72 @@ public class NewWarp {
 		int cols1 = source.cols();
 
 		int[][] points0= {
-				{213,112},
-				{32,621},
-				{466,708},
-				{522,152},
-				/*cactus
-				{196,247},
-				{108,307},
-				{286,333},
-				{310,434},
-				{87,427},
-				//{256,286},
-				{145,270},
-				{302,264},
-				{628,312},
+				//chocolateS resize
+				/*
+				{18,5},
+				{104,4},
+				{193,3},
+				{267,3},
+				{345,3},
+				{23,478},
+				{90,477},
+				{177,478},
+				{259,477},
+				{343,478},
+				{19,123},
+				{61,122},
+				{103,121},
+				{147,120},
+				{188,119},
+				{226,121},
+				{266,120},
+				{306,119},
+				{348,119},
+				{23,414},
+				{60,414},
+				{95,414},
+				{138,416},
+				{178,414},
+				{222,413},
+				{258,415},
+				{304,414},
+				{341,414}
 				*/
 		};
 		for(int i=0; i<points0.length; i++){
 			points.add(points0[i]);
 		}
 		double[][] shifts0= {
-				{-119,-48},
-				{44,90},
-				{50,14},
-				{-3,-92},
-				/*cactus
-				{1,-33},
-				{-30,-3},
-				{40,3},
-				{30,2},
-				{-35,2},
-				//{25,-30},
-				{-25,-25},
-				{-10,-38},
-				{1,-35},
-				
+				//chocolateS
+				/*
+				{1,89},
+				{-2,91},
+				{-4,93},
+				{-4,92},
+				{1,93},
+				{0,-30},
+				{1,-28},
+				{1,-29},
+				{0,-29},
+				{0,-31},
+				{0,25},
+				{1,26},
+				{0,26},
+				{0,29},
+				{0,29},
+				{1,28},
+				{0,27},
+				{0,27},
+				{-2,30},
+				{1,-29},
+				{2,-27},
+				{3,-29},
+				{1,-30},
+				{-3,-30},
+				{-2,-27},
+				{1,-30},
+				{0,-28},
+				{1,-27}
 				*/
 		};
 		for(int i=0; i<points0.length; i++){
@@ -263,7 +326,7 @@ public class NewWarp {
 		String line = "";
         String cvsSplitBy = ",";
         ArrayList<String[]> dataList = new ArrayList<String[]>(); //線string
-        try(BufferedReader br = new BufferedReader(new FileReader("src//jason//lineoutput.csv"))) {
+        try(BufferedReader br = new BufferedReader(new FileReader("src//jason//"+imageName+".csv"))) {
 			while ((line = br.readLine()) != null) {
                 dataList.add(line.split(cvsSplitBy));
             }
@@ -322,7 +385,7 @@ public class NewWarp {
 			int yE = lines.get(i)[3];
 			
 			double[] shift ={0,0};
-			//計算點的影響力S
+			//計算線段起點的影響力
 			for(int k=0; k<pointsCnt; k++){
 				dists[k] = Math.sqrt((xS-points.get(k)[0])*(xS-points.get(k)[0])+(yS-points.get(k)[1])*(yS-points.get(k)[1]));
 				effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
@@ -347,11 +410,15 @@ public class NewWarp {
 				for(int k=0; k<effects.length; k++){
 					sum = sum+effects[k];
 				}
+	
 				double power = 1;
 				while(Math.abs(sum-1)>0.1){
 					if(sum > 1){
 						power = power + 0.1;
 						for(int k=0; k<newEffects.length; k++){
+							if(effects[k]==1){//避免是1進入無限回圈
+								effects[k]= effects[k]-0.00001;
+							}
 							newEffects[k] = Math.pow(effects[k],power);
 						}
 						sum = 0;
@@ -363,6 +430,9 @@ public class NewWarp {
 					else{
 						power = power - 0.1;
 						for(int k=0; k<newEffects.length; k++){
+							if(effects[k]==1){//避免是1進入無限回圈
+								effects[k]= effects[k]+0.00001;
+							}
 							newEffects[k] = Math.pow(effects[k],power);
 						}
 						sum = 0;
@@ -372,6 +442,7 @@ public class NewWarp {
 						//System.out.println("2,"+ sum);
 					}
 				}
+				
 				for(int k=0; k<newEffects.length; k++){
 					shift[0] = shift[0]+newEffects[k]*shifts.get(k)[0];
 					shift[1] = shift[1]+newEffects[k]*shifts.get(k)[1];
@@ -386,7 +457,7 @@ public class NewWarp {
 			lineDists[i][1] = yS+(int)Math.round(shift[1]);
 
 			shift = new double[]{0,0};
-			//計算點的影響力E
+			//計算線段終點的影響力
 			for(int k=0; k<pointsCnt; k++){
 				dists[k] = Math.sqrt((xE-points.get(k)[0])*(xE-points.get(k)[0])+(yE-points.get(k)[1])*(yE-points.get(k)[1]));
 				effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
@@ -410,11 +481,15 @@ public class NewWarp {
 				for(int k=0; k<effects.length; k++){
 					sum = sum+effects[k];
 				}
+
 				double power = 1;
 				while(Math.abs(sum-1)>0.1){
 					if(sum > 1){
 						power = power + 0.1;
 						for(int k=0; k<newEffects.length; k++){
+							if(effects[k]==1){//避免是1進入無限回圈
+								effects[k]= effects[k]-0.00001;
+							}
 							newEffects[k] = Math.pow(effects[k],power);
 						}
 						sum = 0;
@@ -426,6 +501,9 @@ public class NewWarp {
 					else{
 						power = power - 0.1;
 						for(int k=0; k<newEffects.length; k++){
+							if(effects[k]==1){//避免是1進入無限回圈
+								effects[k]= effects[k]+0.00001;
+							}
 							newEffects[k] = Math.pow(effects[k],power);
 						}
 						sum = 0;
@@ -435,6 +513,7 @@ public class NewWarp {
 						//System.out.println("2,"+ sum);
 					}
 				}
+				
 				for(int k=0; k<newEffects.length; k++){
 					shift[0] = shift[0]+newEffects[k]*shifts.get(k)[0];
 					shift[1] = shift[1]+newEffects[k]*shifts.get(k)[1];
@@ -456,10 +535,10 @@ public class NewWarp {
 		newEffects = new double[points.size()];
 		for(int x=0; x<cols1; x++){
 			for(int y=0; y<rows1; y++){
-				//System.out.println(x+","+y);
+				//System.out.println(x+","+y);///////////////////////
 				OnLines pts = new OnLines(lineDists,x,y);
 				
-				if(pts.yesNo() == 1000){ //在線上///////
+				if(pts.yesNo() == 100){ //在線上///////
 					int xS = lines.get(pts.lineNum())[0];
 					int yS = lines.get(pts.lineNum())[1];
 					int xE = lines.get(pts.lineNum())[2];
@@ -471,9 +550,11 @@ public class NewWarp {
 					int dyE = lineDists[pts.lineNum()][3];
 					DistLinePt linePt = new DistLinePt(dxS, dyS, dxE, dyE, x, y, xS, yS, xE, yE);
 					//System.out.println(x+","+y+","+linePt.getY()+","+linePt.getX());
-					dst.put(y, x, source.get( (int)Math.round(linePt.getY()), (int)Math.round(linePt.getX()) ) );
+					dst.put(y, x, bigSource.get( (int)(Math.round( linePt.getY() )*product), (int)(Math.round( linePt.getX() )*product) ) );
 				}
+				
 				else{
+					
 					WithInLineReg inLineReg = new WithInLineReg(lineDists, x, y);
 					CalNewPts newPt = new CalNewPts(inLineReg.getLineNumSet(),inLineReg.getLineS(),inLineReg.getLineE(),lineDists, lines, x, y);
 					
@@ -524,16 +605,25 @@ public class NewWarp {
 					effects = new double[newPoints2.length];
 					newEffects = new double[newPoints2.length];
 					double[] shift = new double[2];
-
-					for(int k=0; k<newPoints2.length; k++){
+					
+					for(int k=0; k<newPoints2.length; k++){//算點和各特徵點的權重
 						dists[k] = Math.sqrt((x-newPoints2[k][0])*(x-newPoints2[k][0])+(y-newPoints2[k][1])*(y-newPoints2[k][1]));
-						
+						if(dists[k]<=5){
+							//dists[k] = 1;
+						}
+						if(dists[k]==0){
+							//dists[k] = 0.5;
+						}
+						//effects[k] = Math.pow(((diagonal-dists[k])/diagonal), 5);
 						if(k> pointsCnt-1){//增加線上特徵點的權重（減少非線上特徵點的權重）
-							effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
+							//effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
+							effects[k] = Math.pow(((diagonal-dists[k])/diagonal), 2);
 						}
 						else{
-							effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
+							//effects[k] = ((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal)*((diagonal-dists[k])/diagonal);
+							effects[k] = Math.pow(((diagonal-dists[k])/diagonal), 3);
 						}
+
 						
 						//System.out.println(k+","+effects[k]);
 						if(effects[k]<0.1){
@@ -546,7 +636,7 @@ public class NewWarp {
 						//newEffects[k] = effects[k];////////////////////這個好像不用
 
 					}
-//
+					/* 同如果不是特偵點一起刪
 					int counter = 0;
 					int matchPoint = 0;
 					for(int k=0; k<dists.length; k++){
@@ -555,44 +645,71 @@ public class NewWarp {
 							matchPoint = k;
 						}
 					}
-					
+
 					if (counter == 0){ //如果不是特徵點
-//
+					*/
 						double sum = 0; //權重加總
 						for(int k=0; k<effects.length; k++){
 							sum = sum+effects[k];
 						}
+						
+						//System.out.println(power);////////////////////
+						//改百分比權重
+						/*
+						for(int k=0; k<newEffects.length; k++){
+							newEffects[k] = effects[k]/sum;
+							//newEffects[k] = Math.pow(effects[k]+1, -0.5);							
+							//System.out.println(x+" "+y+" "+newEffects[k]);
+						}
+						*/
+
+						//算百分比權重
+						
 						double power = 1;
+						//int countt= 0;
 						while(Math.abs(sum-1)>0.1){
-							//if(x>=401 && x<=402 && y >=56 && y <=56 ){System.out.println("sum:"+sum);}//////////////////////////////
+							//if(x==44 && y ==683 ){System.out.println("sum:"+sum);}//////////////////////////////
+							//countt= countt+1;
+							
 							if(sum == 0){
 								break;
 							}
 							else if(sum > 1){
 								power = power + 0.1;
 								for(int k=0; k<newEffects.length; k++){
+									if(effects[k]==1){//避免是1進入無限回圈
+										effects[k]= effects[k]-0.00001;
+									}
 									newEffects[k] = Math.pow(effects[k],power);
+									//if(x==44 && y ==683 ){System.out.println("newEffects[k]:"+newEffects[k]);}///////////////////
 								}
 								sum = 0;
 								for(int k=0; k<newEffects.length; k++){
 									sum = sum+newEffects[k];
 								}
 									//System.out.println("1,"+ sum);
+								//if(x==44 && y ==683 ){System.out.println("power:"+power);}
+								//System.out.println(countt);
 							}
 							else{
 								power = power - 0.1;
 								for(int k=0; k<newEffects.length; k++){
+									if(effects[k]==1){//避免是1進入無限回圈
+										effects[k]= effects[k]+0.00001;
+									}
 									newEffects[k] = Math.pow(effects[k],power);
 								}
 								sum = 0;
 								for(int k=0; k<newEffects.length; k++){
 									sum = sum+newEffects[k];
 								}
+								//System.out.println("-"+countt);
 
 									//System.out.println("2,"+ sum);
-
+								//if(x==44 && y ==683 ){System.out.println("power:"+power);}////////////////////////////
 							}
 						}
+						
 						
 						
 						for(int k=0; k<newEffects.length; k++){
@@ -603,14 +720,20 @@ public class NewWarp {
 
 						}
 						
+					
+					/*
 					}
 					else{
 						shift = newSifts2[matchPoint];
 					}
-					
-					if(y+(int)shift[1]>=0 && x+(int)shift[0] >=0 && y+(int)shift[1]<rows1 && x+(int)shift[0] <cols1){
-						dst.put(y, x, source.get( y+(int)shift[1] , x+(int)shift[0] ) );
+					*/
+					if((int)((y+shift[1])*product)>=0 && (int)((x+shift[0])*product) >=0 && (int)((y+shift[1])*product)<rows1*product && (int)((x+shift[0])*product) <cols1*product){
+						dst.put(y, x, bigSource.get( (int)((y+shift[1])*product) , (int)((x+shift[0])*product) ));
+						
+							//System.out.println(y+shift[1]+","+(int)((y+shift[1])*product));
+						
 					}
+					
 					
 				}
 				
@@ -618,16 +741,23 @@ public class NewWarp {
 		}
 		for(int p=0; p<pointsCnt; p++){
 			Point pt1 = new Point(points.get(p)[0],points.get(p)[1]);
-			Imgproc.line(source, pt1, pt1, new Scalar(25,55,220),5);
+			Imgproc.line(playSource, pt1, pt1, new Scalar(25,55,220),5);
 			Point pt2 = new Point(points.get(p)[0]+shifts.get(p)[0],points.get(p)[1]+shifts.get(p)[1]);
-			Imgproc.line(source, pt2, pt2, new Scalar(255,55,220),5);
+			Imgproc.line(playSource, pt2, pt2, new Scalar(255,55,220),5);
 		}
 		for(int p=0;p<linesR;p++){
 			Point pt1= new Point(lines.get(p)[0],lines.get(p)[1]);
 			Point pt2= new Point(lines.get(p)[2],lines.get(p)[3]);
-			Imgproc.line(source, pt1, pt2, new Scalar(225,0,0),1);
+			Imgproc.line(playSource, pt1, pt2, new Scalar(225,0,0),1);
 		}
-		image = matToBufferedImage(source);
+		/*結果圖的線條
+		for(int p=0;p<linesR;p++){
+			Point pt1= new Point(lineDists[p][0],lineDists[p][1]);
+			Point pt2= new Point(lineDists[p][2],lineDists[p][3]);
+			Imgproc.line(dst, pt1, pt2, new Scalar(225,0,0),1);
+		}
+		*/
+		image = matToBufferedImage(playSource);
 		image2 = matToBufferedImage(dst);
 	}
 
